@@ -28,8 +28,10 @@ def process_spans(rel_dict,spans,spans_pos,spans_rel):
 
     if len(sel_spans)>=2:
         texts_list, rel_idx, rel_str = display_sidebar(rel_dict=rel_dict,spans=sel_spans,spans_pos=spans_pos)
+        show_summary(texts_list,rel_str,spans_rel[rel_idx])
+
         if len(rel_str) > 0:
-            show_summary(texts_list,rel_str,spans_rel[rel_idx])
+            # show_summary(texts_list,rel_str,spans_rel[rel_idx])
             generic.update_session(spans_rel,rel_idx,rel_str)
 
             return True
@@ -40,7 +42,9 @@ def show_summary(texts_list,new_rel,prev_rel):
     st.subheader('Entity Relations Set')
     st.markdown(f'Related elements: `{texts_list[1]}` - `{texts_list[2]}`')
     st.markdown(f"Previous Relations: `{prev_rel['label']}`")
-    st.markdown(f"New Relations: `{new_rel['label']}`")
+
+    if new_rel != prev_rel:
+        st.markdown(f"New Relations: `{new_rel['label']}`")
 
 
 def display_sidebar(rel_dict,spans=None,spans_pos=None):
@@ -54,8 +58,6 @@ def display_sidebar(rel_dict,spans=None,spans_pos=None):
                 texts_list = texts.replace(':',' -').split(' - ')
                 span_dict = [span for span in st.session_state.spans_rel if span['head']==generic.get_list_value(spans_pos,texts_list[1]) and span['child']==generic.get_list_value(spans_pos,texts_list[2])][0]
                 rel_idx = st.session_state.spans_rel.index(span_dict)
-
-            if texts:
                 category = st.selectbox(label='Category', index=len(rel_dict)-1, options=rel_dict.keys(), key='category')
                 if category != 'No-rel':
                     action = st.selectbox(label='Action', options=[None]+list(rel_dict[category].keys()), key='action')
@@ -63,7 +65,8 @@ def display_sidebar(rel_dict,spans=None,spans_pos=None):
                         polarity = st.selectbox(label='Polarity', options=[None]+rel_dict[category][action], key='polarity')
                         if polarity:
                             span_dict['label'] = f'{polarity}-{action}'
-                            return texts_list, rel_idx, span_dict
+                            # return texts_list, rel_idx, span_dict
+                return texts_list, rel_idx, span_dict
     return None, None, {}
 
 def process_iterator(iter_obj,page_num,rel_dict):
