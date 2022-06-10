@@ -67,6 +67,8 @@ def display_sidebar(rel_dict,spans=None,spans_pos=None):
                         if polarity:
                             span_dict['label'] = f'{polarity}-{action}'
                             # return texts_list, rel_idx, span_dict
+                else:
+                    span_dict['label'] = 'No-rel'
                 return texts_list, rel_idx, span_dict
     return None, None, {}
 
