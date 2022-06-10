@@ -22,7 +22,7 @@ def show_status(update_status):
 
         
 
-def process_spans(rel_dict,spans,spans_pos,spans_rel):
+def process_spans(rel_dict,spans,spans_pos,spans_rel,prev_rel):
     st.subheader('Select span elements!')
     sel_spans = st.multiselect('Entities',key='multi_spans',options=[span['text'] for span in spans])
 
@@ -30,7 +30,7 @@ def process_spans(rel_dict,spans,spans_pos,spans_rel):
         texts_list, rel_idx, rel_str = display_sidebar(rel_dict=rel_dict,spans=sel_spans,spans_pos=spans_pos)
         if rel_idx != None:
             st.write(spans_rel)
-            show_summary(texts_list,rel_str,spans_rel[rel_idx])
+            show_summary(texts_list,rel_str,prev_rel[rel_idx])
 
         if len(rel_str) > 0:
             # show_summary(texts_list,rel_str,spans_rel[rel_idx])
@@ -80,7 +80,7 @@ def process_iterator(iter_obj,page_num,rel_dict):
         st.subheader('Text to Annotate!')
         st.info(text['text'])
 
-        update_status = process_spans(rel_dict=rel_dict,spans=text['spans'],spans_pos=spans_pos,spans_rel=st.session_state.spans_rel)
+        update_status = process_spans(rel_dict=rel_dict,spans=text['spans'],spans_pos=spans_pos,spans_rel=st.session_state.spans_rel,prev_rel=text['relations'])
         generic.update_text(iter_obj,text,text_idx,st.session_state.spans_rel)
 
         return update_status
