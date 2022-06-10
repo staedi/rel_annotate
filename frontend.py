@@ -28,7 +28,7 @@ def process_spans(rel_dict,spans,spans_pos,spans_rel):
 
     if len(sel_spans)>=2:
         texts_list, rel_idx, rel_str = display_sidebar(rel_dict=rel_dict,spans=sel_spans,spans_pos=spans_pos)
-        if rel_idx:
+        if rel_idx != None:
             show_summary(texts_list,rel_str,spans_rel[rel_idx])
 
         if len(rel_str) > 0:
