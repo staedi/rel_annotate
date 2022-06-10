@@ -29,17 +29,18 @@ def process_spans(rel_dict,spans,spans_pos,spans_rel):
     if len(sel_spans)>=2:
         texts_list, rel_idx, rel_str = display_sidebar(rel_dict=rel_dict,spans=sel_spans,spans_pos=spans_pos)
         if len(rel_str) > 0:
-            show_summary(texts_list,rel_str)
+            show_summary(texts_list,rel_str,spans_rel[rel_idx])
             generic.update_session(spans_rel,rel_idx,rel_str)
 
             return True
 
     return None
 
-def show_summary(texts_list,relations):
+def show_summary(texts_list,new_rel,prev_rel):
     st.subheader('Entity Relations Set')
     st.markdown(f'Related elements: `{texts_list[1]}` - `{texts_list[2]}`')
-    st.markdown(f"Relations: `{relations['label']}`")
+    st.markdown(f"Previous Relations: `{prev_rel['label']}`")
+    st.markdown(f"New Relations: `{new_rel['label']}`")
 
 
 def display_sidebar(rel_dict,spans=None,spans_pos=None):
