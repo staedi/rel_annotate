@@ -33,17 +33,17 @@ def update_text(iter_obj,text,text_idx,spans_rel):
     # iter_obj[text_idx] = text
     
 
-def write_text(iter_obj,save,path=None):
-    if save:
-        st.write(iter_obj)
-        # if not path:
-        #     path = 'assets/sample.jsonl'
+# def write_text(iter_obj,save,path=None):
+#     if save:
+#         st.write(iter_obj)
+#         # if not path:
+#         #     path = 'assets/sample.jsonl'
 
-        # with open(path, "w", encoding="utf-8") as jsonfile:
-        #     for entry in iter_obj:
-        #         # json.dump(entry,jsonfile)
-        #         jsonfile.write(entry)
-        #         jsonfile.write('\n')
+#         # with open(path, "w", encoding="utf-8") as jsonfile:
+#         #     for entry in iter_obj:
+#         #         # json.dump(entry,jsonfile)
+#         #         jsonfile.write(entry)
+#         #         jsonfile.write('\n')
 
 
 def get_list_value(target_list,value):

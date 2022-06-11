@@ -1,6 +1,7 @@
 import generic
 import streamlit as st
 from itertools import combinations
+import json
 
 def show_pages(layout=[.1,.6]):
     col1, col2 = st.columns(layout)
@@ -12,14 +13,21 @@ def show_pages(layout=[.1,.6]):
 
     return prev_page, next_page
 
-def show_status(update_status):
+def save_data(update_status,iter_obj,path=None):
     if update_status:
-        save = st.button('Save',key='save')
+        if not path:
+            path = 'sample2.jsonl'
 
-        return save
+        json_str = '\n'.join(iter_obj)
+        jsonl = list(map(lambda x:json.loads(x),iter_obj))
 
-    return False
+        # with open(path, "w", encoding="utf-8") as jsonfile:
+        #     for entry in iter_obj:
+        #         # json.dump(entry,jsonfile)
+        #         jsonfile.write(entry)
+        #         jsonfile.write('\n')
 
+        save = st.download_button('Download',key='save',data=json_str,file_name=path)
         
 
 def process_spans(rel_dict,spans,spans_pos,spans_rel,prev_rel):

@@ -20,8 +20,8 @@ frontend.display_sidebar(rel_dict=relations_dict)
 prev_page, next_page = frontend.show_pages()
 prev_page, next_page, update_status = frontend.display_texts(json_lines=json_lines,pages=[prev_page, next_page],rel_dict=relations_dict)
 
-save = frontend.show_status(update_status)
-generic.write_text(json_lines,save)
+frontend.save_data(update_status,json_lines)
+# generic.write_text(json_lines,save)
 
 
 # [## Investment (Buy, Sell, IPO, Privatize, Invest, Bid)
