@@ -1,6 +1,7 @@
 import streamlit as st
 import generic
 import frontend
+import sys
 
 relations_dict = {"Investment": {"Buy": ["Over", "Under"], "Sell": ["Posline"], "IPO": ["Posline"], "Privatize": ["Over", "Under", "Posline"], "Invest": ["Posline"], "Bid": ["Over", "Under"]},
 "Family": {"Family": ["Posline"]},
@@ -11,6 +12,7 @@ relations_dict = {"Investment": {"Buy": ["Over", "Under"], "Sell": ["Posline"], 
 "Bankruptcy": {"Bankruptcy": ["Pos", "Neg"]},
 "No-rel": {"No-rel": []}}
 
+st.write(sys.platform)
 
 generic.init_session()
 json_lines = generic.read_text()
