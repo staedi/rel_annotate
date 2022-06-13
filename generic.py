@@ -22,7 +22,6 @@ def update_session(spans_rel,idx,value):
 
 
 def pre_nlp(lines):
-    spacy.download('en_core_web_md')
     nlp = spacy.load('en_core_web_md')
     annotations = []
 
