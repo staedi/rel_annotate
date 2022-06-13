@@ -2,6 +2,7 @@ import generic
 import streamlit as st
 from itertools import combinations
 import json
+import sys
 
 def show_pages(layout=[.1,.6]):
     col1, col2 = st.columns(layout)
@@ -13,29 +14,35 @@ def show_pages(layout=[.1,.6]):
 
     return prev_page, next_page
 
+# def load_data():
+
 def save_data(update_status,iter_obj,path=None):
     if update_status:
         if not path:
             path = 'sample2.jsonl'
-
-        json_str = '\n'.join(iter_obj)
-        jsonl = list(map(lambda x:json.loads(x),iter_obj))
-
-        # with open(path, "w", encoding="utf-8") as jsonfile:
-        #     for entry in iter_obj:
-        #         # json.dump(entry,jsonfile)
-        #         jsonfile.write(entry)
-        #         jsonfile.write('\n')
-
-        save = st.download_button('Download',key='save',data=json_str,file_name=path)
+            if sys.platform != 'linux':
+                path = 'assets/' + path
         
+        if sys.platform == 'linux':
+            json_str = '\n'.join(iter_obj)
+            jsonl = list(map(lambda x:json.loads(x),iter_obj))
+            save = st.download_button('Download',key='save',data=json_str,file_name=path)
+
+        else:
+            save = st.button('Save',key='save')
+            if save:
+                with open(path, "w", encoding="utf-8") as jsonfile:
+                    for entry in iter_obj:
+                        # json.dump(entry,jsonfile)
+                        jsonfile.write(entry)
+                        jsonfile.write('\n')        
 
 def process_spans(rel_dict,spans,spans_pos,spans_rel,prev_rel):
     st.subheader('Select span elements!')
     sel_spans = st.multiselect('Entities',key='multi_spans',options=[span['text'] for span in spans])
 
     if len(sel_spans)>=2:
-        texts_list, rel_idx, rel_str = display_sidebar(rel_dict=rel_dict,spans=sel_spans,spans_pos=spans_pos)
+        _, texts_list, rel_idx, rel_str = display_sidebar(rel_dict=rel_dict,spans=sel_spans,spans_pos=spans_pos)
         if rel_idx != None:
             show_summary(texts_list,rel_str,prev_rel[rel_idx])
 
@@ -58,8 +65,16 @@ def show_summary(texts_list,new_rel,prev_rel):
 
 def display_sidebar(rel_dict,spans=None,spans_pos=None):
     with st.sidebar:
-        if not spans:
-            st.subheader('Select relationship!')
+        if not spans and not spans_pos:
+            st.subheader('Select a file to upload')
+            upload = st.file_uploader('Upload',type=['txt','jsonl'],key='upload')
+            json_lines = generic.read_text(upload)
+
+            return json_lines, None, None, {}
+
+        elif not spans:
+            st.subheader('Select entities to analyze')
+
         else:
             spans_list = list(combinations(spans,2))
             texts = st.selectbox(label='Index - Span', options=[None]+[f'{span_idx}: {span_el[0]} - {span_el[1]}' for span_idx, span_el in enumerate(spans_list)])
@@ -77,14 +92,16 @@ def display_sidebar(rel_dict,spans=None,spans_pos=None):
                             # return texts_list, rel_idx, span_dict
                 else:
                     span_dict['label'] = 'No-rel'
-                return texts_list, rel_idx, span_dict
-    return None, None, {}
+                return None, texts_list, rel_idx, span_dict
+    return None, None, None, {}
 
 def process_iterator(iter_obj,page_num,rel_dict):
     text_idx, line = generic.check_iterator(iter_obj,page_num)
     if len(line) > 0:
         text, spans_rel, spans_pos = generic.process_text(text_idx, line)
         st.subheader('Text to Annotate!')
+        st.markdown(f'Current Page: `{page_num+1}` of `{len(iter_obj)}`')
+
         st.info(text['text'])
 
         update_status = process_spans(rel_dict=rel_dict,spans=text['spans'],spans_pos=spans_pos,spans_rel=st.session_state.spans_rel,prev_rel=text['relations'])

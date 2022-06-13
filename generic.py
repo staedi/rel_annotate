@@ -1,3 +1,6 @@
+from io import StringIO
+from itertools import combinations
+import spacy
 import streamlit as st
 import json
 
@@ -18,32 +21,67 @@ def update_session(spans_rel,idx,value):
         st.session_state.spans_rel[idx] = value
 
 
+def pre_nlp(lines):
+    nlp = spacy.load('en_core_web_md')
+    annotations = []
+
+    for line in lines:
+        spans = []
+        tokens = []
+        relations = []
+
+        doc = nlp(line)
+
+        for ent in doc.ents:
+            if ent.label_ not in ('DATE','TIME','PERCENT','MONEY','QUANTITY','ORDINAL','CARDINAL'):
+                spans.append({"text":ent.text,"start":ent.start_char,"token_start":ent.start,"token_end":ent.end,"end":ent.end_char,"type":"span","label":ent.label_})
+    
+        for span in combinations(spans,2):
+            relations.append({"head": span[0]["token_start"], "child": span[1]["token_start"], 
+            "head_span": {"start": span[0]["start"], "end": span[0]["end"], "token_start": span[0]["token_start"], "token_end": span[0]["token_end"], "label": span[0]["label"]},
+            "child_span": {"start": span[1]["start"], "end": span[1]["end"], "token_start": span[1]["token_start"], "token_end": span[1]["token_end"], "label": span[0]["label"]},
+            "label": "No-rel"})
+
+        token_range_2d = list(map(lambda x:[idx for idx in range(x['token_start'],x['token_end'])],spans))
+        token_range = []
+
+        list(map(lambda x:token_range.extend(x),token_range_2d))
+
+        for token in doc:
+            if token.i in token_range:
+                tokens.append({"text":token.text,"start":token.idx,"end":token.idx+len(token.text),"id":token.i,"ws":token.whitespace_ == ' ',"disabled":False})
+            else:
+                tokens.append({"text":token.text,"start":token.idx,"end":token.idx+len(token.text),"id":token.i,"ws":token.whitespace_ == ' ',"disabled":True})
+
+        annotations.append(json.dumps({"text":line,"spans":spans,"tokens":tokens,"_view_id":"relations","relations":relations,"answer":"accept"}))
+
+    return annotations
+
+
 def read_text(path=None):
     if not path:
         path = 'assets/sample.jsonl'
+        with open(path, "r", encoding="utf-8") as file:
+            json_lines = [line.rstrip('\n') for line in file.readlines()]
 
-    with open(path, "r", encoding="utf-8") as jsonfile:
-        json_lines = [json_line.rstrip('\n') for json_line in jsonfile.readlines()]
-        return json_lines
+    else:
+        stringio = StringIO(path.getvalue().decode('utf-8'))
+        lines = [line.rstrip('\n') for line in stringio.readlines()]
+
+        if path.name.find('txt') != -1:
+            lines = list(map(lambda x:x[:x.find(' |')] if x.find('| ') != -1 else x,lines))
+            json_lines = pre_nlp(lines)
+        else:
+            json_lines = lines
+
+    return json_lines
+
 
 
 def update_text(iter_obj,text,text_idx,spans_rel):
     text['relations'] = spans_rel
     iter_obj[text_idx] = json.dumps(text)
     # iter_obj[text_idx] = text
-    
-
-# def write_text(iter_obj,save,path=None):
-#     if save:
-#         st.write(iter_obj)
-#         # if not path:
-#         #     path = 'assets/sample.jsonl'
-
-#         # with open(path, "w", encoding="utf-8") as jsonfile:
-#         #     for entry in iter_obj:
-#         #         # json.dump(entry,jsonfile)
-#         #         jsonfile.write(entry)
-#         #         jsonfile.write('\n')
 
 
 def get_list_value(target_list,value):
