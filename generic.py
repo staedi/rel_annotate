@@ -16,7 +16,7 @@ def init_session(spans_rel=None):
         st.session_state['page'] = 0
 
     if 'annotation' not in st.session_state:
-        st.session_state['annotation'] = None
+        st.session_state['annotation'] = {'filename':None, 'data':None}
 
 
 def update_session(spans_rel,idx,value):
@@ -27,6 +27,7 @@ def update_session(spans_rel,idx,value):
 def pre_nlp(lines,nlp=None):
     if not nlp:
         nlp = spacy.load('en_core_web_md')
+
     annotations = []
 
     for line in lines:
@@ -64,28 +65,35 @@ def pre_nlp(lines,nlp=None):
 
 # @st.cache(allow_output_mutation=True)
 def read_text(path=None):
-    if st.session_state.annotation:
-        return st.session_state.annotation
-
     if not path:
-        path = 'assets/sample.jsonl'
-        with open(path, "r", encoding="utf-8") as file:
+        filename = 'assets/sample.jsonl'
+    else:
+        filename = path.name
+
+    # Check if the same data exists (already loaded)
+    if st.session_state.annotation['filename'] == filename:
+        return st.session_state.annotation['data']
+
+    # No file uploaded
+    if not path:
+        with open(filename, "r", encoding="utf-8") as file:
             json_lines = [line.rstrip('\n') for line in file.readlines()]
 
     else:
         stringio = StringIO(path.getvalue().decode('utf-8'))
         lines = [line.rstrip('\n') for line in stringio.readlines()]
 
-        if path.name.find('txt') != -1:
+        # .txt file
+        if filename.find('txt') != -1:
             lines = list(map(lambda x:x[:x.find(' |')] if x.find('| ') != -1 else x,lines))
             json_lines, nlp = pre_nlp(lines)
         else:
             json_lines = lines
 
-    st.session_state.annotation = json_lines
+    st.session_state.annotation['filename'] = filename
+    st.session_state.annotation['data'] = json_lines
 
     return json_lines
-
 
 
 def update_text(iter_obj,text,text_idx,spans_rel):
