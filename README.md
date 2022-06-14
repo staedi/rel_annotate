@@ -11,12 +11,13 @@ With the following predefined relations, this tool helps to simplify the relatio
 
 Consulting several papers, the following is a proposed categorization of relations between entities. (The example sentences below are not always based on the facts.)
 
-- **Investment**: Buy, Sell, IPO, Privatization, Invest, Bid
+- **Investment**: Buy, Sell, IPO, Privatization, Invest, Poach, Bid
     - `Buy` - **Microsoft** agreed to buy stakes in **Activision**. (- / +)
     - `Sell` - **Twitter** announced to sell its large share. (+ / +)
     - `IPO` - **Airbnb** debuted the **NYSE** amid investors’ surging interests. (+ / 0)
     - `Privatize` - **Nvidia** announced its sale of 10% stakes to **Softbank Japan**.
     - `Invest` - **Meta Platforms** invested a large portion of its capital into **metaverse**.
+    - `Poach` - **Microsoft** poached bunch of C-suites from its rival **Google**.
     - `Bid` -
         - **Amazon** lost its bid for the DoD’s cloud project to **Microsoft**.
         - **Oracle** won the bid to become to become the supplier for the DoD’s DARPA project.

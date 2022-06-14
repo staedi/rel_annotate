@@ -2,7 +2,7 @@ import streamlit as st
 import generic
 import frontend
 
-relations_dict = {"Investment": {"Buy": ["Over", "Under"], "Sell": ["Posline"], "IPO": ["Posline"], "Privatize": ["Over", "Under", "Posline"], "Invest": ["Posline"], "Bid": ["Over", "Under"]},
+relations_dict = {"Investment": {"Buy": ["Over", "Under"], "Sell": ["Posline"], "IPO": ["Posline"], "Privatize": ["Over", "Under", "Posline"], "Invest": ["Posline"], "Poach": ["Over"], "Bid": ["Over", "Under"]},
 "Family": {"Family": ["Posline"]},
 "Cooperation": {"Cooperate": ["Posline"]},
 "Performance": {"Perform": ["Over", "Under"], "Inline": ["Posline", "Negline"]},
@@ -24,7 +24,7 @@ frontend.save_data(update_status,json_lines)
 # generic.write_text(json_lines,save)
 
 
-# [## Investment (Buy, Sell, IPO, Privatize, Invest, Bid)
+# [## Investment (Buy, Sell, IPO, Privatize, Invest, Poach, Bid)
 # "Over-Buy",   # "A" is bought by B
 # "Under-Buy",    # "A" buys B
 # "Posline-Sell",   # "A" is sold to B 
@@ -33,6 +33,7 @@ frontend.save_data(update_status,json_lines)
 # "Under-Privatize",    # "A" privatizes B
 # "Posline-Privatize",   # "A" is taken private
 # "Posline-Invest",   # "A" invested in B
+# "Over-Poach",   # "A" poachs new hires from B
 # "Over-Bid",   # "A" wins the bid against B
 # "Under-Bid",   # "A" loses the bid to B
 # ## Family / Ownership

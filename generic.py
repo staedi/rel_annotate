@@ -15,14 +15,18 @@ def init_session(spans_rel=None):
     if 'page' not in st.session_state:
         st.session_state['page'] = 0
 
+    if 'annotation' not in st.session_state:
+        st.session_state['annotation'] = None
+
 
 def update_session(spans_rel,idx,value):
     if 'spans_rel' in st.session_state:
         st.session_state.spans_rel[idx] = value
 
 
-def pre_nlp(lines):
-    nlp = spacy.load('en_core_web_md')
+def pre_nlp(lines,nlp=None):
+    if not nlp:
+        nlp = spacy.load('en_core_web_md')
     annotations = []
 
     for line in lines:
@@ -55,10 +59,14 @@ def pre_nlp(lines):
 
         annotations.append(json.dumps({"text":line,"spans":spans,"tokens":tokens,"_view_id":"relations","relations":relations,"answer":"accept"}))
 
-    return annotations
+    return annotations, nlp
 
 
+# @st.cache(allow_output_mutation=True)
 def read_text(path=None):
+    if st.session_state.annotation:
+        return st.session_state.annotation
+
     if not path:
         path = 'assets/sample.jsonl'
         with open(path, "r", encoding="utf-8") as file:
@@ -70,9 +78,11 @@ def read_text(path=None):
 
         if path.name.find('txt') != -1:
             lines = list(map(lambda x:x[:x.find(' |')] if x.find('| ') != -1 else x,lines))
-            json_lines = pre_nlp(lines)
+            json_lines, nlp = pre_nlp(lines)
         else:
             json_lines = lines
+
+    st.session_state.annotation = json_lines
 
     return json_lines
 

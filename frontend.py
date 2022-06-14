@@ -14,7 +14,6 @@ def show_pages(layout=[.1,.6]):
 
     return prev_page, next_page
 
-# def load_data():
 
 def save_data(update_status,iter_obj,path=None):
     if update_status:
@@ -53,6 +52,7 @@ def process_spans(rel_dict,spans,spans_pos,spans_rel,prev_rel):
             return True
 
     return None
+
 
 def show_summary(texts_list,new_rel,prev_rel):
     st.subheader('Entity Relations Set')
@@ -94,6 +94,7 @@ def display_sidebar(rel_dict,spans=None,spans_pos=None):
                     span_dict['label'] = 'No-rel'
                 return None, texts_list, rel_idx, span_dict
     return None, None, None, {}
+
 
 def process_iterator(iter_obj,page_num,rel_dict):
     text_idx, line = generic.check_iterator(iter_obj,page_num)
