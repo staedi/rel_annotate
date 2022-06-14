@@ -82,16 +82,18 @@ def display_sidebar(rel_dict,spans=None,spans_pos=None):
                 texts_list = texts.replace(':',' -').split(' - ')
                 span_dict = [span for span in st.session_state.spans_rel if span['head']==generic.get_list_value(spans_pos,texts_list[1]) and span['child']==generic.get_list_value(spans_pos,texts_list[2])][0]
                 rel_idx = st.session_state.spans_rel.index(span_dict)
-                category = st.selectbox(label='Category', index=len(rel_dict)-1, options=rel_dict.keys(), key='category')
-                if category != 'No-rel':
-                    action = st.selectbox(label='Action', options=[None]+list(rel_dict[category].keys()), key='action')
-                    if action:
-                        polarity = st.selectbox(label='Polarity', options=[None]+rel_dict[category][action], key='polarity')
-                        if polarity:
-                            span_dict['label'] = f'{polarity}-{action}'
-                            # return texts_list, rel_idx, span_dict
-                else:
-                    span_dict['label'] = 'No-rel'
+                category = st.selectbox(label='Category', options=[None]+list(rel_dict.keys()), key='category')
+
+                if category != None:
+                    if category != 'No-rel':
+                        action = st.selectbox(label='Action', options=[None]+list(rel_dict[category].keys()), key='action')
+                        if action:
+                            polarity = st.selectbox(label='Polarity', options=[None]+rel_dict[category][action], key='polarity')
+                            if polarity:
+                                span_dict['label'] = f'{polarity}-{action}'
+                                # return texts_list, rel_idx, span_dict
+                    else:
+                        span_dict['label'] = 'No-rel'
                 return None, texts_list, rel_idx, span_dict
     return None, None, None, {}
 
