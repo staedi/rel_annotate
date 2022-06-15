@@ -138,6 +138,13 @@ def process_text(text_idx, line):
     return text, spans_rel, spans_pos
 
 
+def process_displayc(text):
+    doc = [{'text':text['text'],'ents':text['spans']}]
+    labels = [ents['label'] for ents in doc[0]['ents']]
+
+    return doc, labels
+
+
 def process_btn(json_lines,pages,page_num=0):
     if pages[0]:    # prev_page
         if st.session_state.page > 0:

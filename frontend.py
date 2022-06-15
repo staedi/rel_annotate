@@ -1,5 +1,6 @@
 import generic
 import streamlit as st
+import spacy_streamlit
 from itertools import combinations
 import json
 import sys
@@ -103,10 +104,12 @@ def process_iterator(iter_obj,page_num,rel_dict):
     text_idx, line = generic.check_iterator(iter_obj,page_num)
     if len(line) > 0:
         text, spans_rel, spans_pos = generic.process_text(text_idx, line)
-        st.subheader('Text to Annotate!')
         st.markdown(f'Current Page: `{page_num+1}` of `{len(iter_obj)}`')
+        st.subheader('Text to Annotate!')
 
-        st.info(text['text'])
+        doc, labels = generic.process_displayc(text)
+        spacy_streamlit.visualize_ner(doc,show_table=False,manual=True,labels=labels,title='')
+        # st.info(text['text'])
 
         update_status = process_spans(rel_dict=rel_dict,spans=text['spans'],spans_pos=spans_pos,spans_rel=st.session_state.spans_rel,prev_rel=text['relations'])
         generic.update_text(iter_obj,text,text_idx,st.session_state.spans_rel)
