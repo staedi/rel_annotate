@@ -141,3 +141,9 @@ def process_btn(json_lines,pages,page_num=0):
     prev_page, next_page = False, False
 
     return prev_page, next_page, page_num
+
+
+def reset_select():
+    if 'category' in st.session_state:
+        st.session_state.category = None
+    return

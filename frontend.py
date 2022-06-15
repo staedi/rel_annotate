@@ -77,11 +77,12 @@ def display_sidebar(rel_dict,spans=None,spans_pos=None):
 
         else:
             spans_list = list(combinations(spans,2))
-            texts = st.selectbox(label='Index - Span', options=[None]+[f'{span_idx}: {span_el[0]} - {span_el[1]}' for span_idx, span_el in enumerate(spans_list)])
+            texts = st.selectbox(label='Index - Span', options=[None]+[f'{span_idx}: {span_el[0]} - {span_el[1]}' for span_idx, span_el in enumerate(spans_list)], key='index_span', on_change=generic.reset_select)
             if texts:
                 texts_list = texts.replace(':',' -').split(' - ')
                 span_dict = [span for span in st.session_state.spans_rel if span['head']==generic.get_list_value(spans_pos,texts_list[1]) and span['child']==generic.get_list_value(spans_pos,texts_list[2])][0]
                 rel_idx = st.session_state.spans_rel.index(span_dict)
+
                 category = st.selectbox(label='Category', options=[None]+list(rel_dict.keys()), key='category')
 
                 if category != None:
