@@ -1,4 +1,4 @@
 spacy==3.3.0
 en-core-web-md @ https://github.com/explosion/spacy-models/releases/download/en_core_web_md-3.3.0/en_core_web_md-3.3.0-py3-none-any.whl
-streamlit==1.7.0
+# streamlit==1.7.0
 spacy_streamlit==1.0.4
