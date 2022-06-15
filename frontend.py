@@ -47,7 +47,7 @@ def process_spans(rel_dict,spans,spans_pos,spans_rel,prev_rel):
 
         if len(rel_str) > 0:
             # show_summary(texts_list,rel_str,spans_rel[rel_idx])
-            generic.update_session(spans_rel,rel_idx,rel_str)
+            generic.update_session('spans_rel',rel_idx,rel_str)
 
             return True
 
@@ -77,7 +77,7 @@ def display_sidebar(rel_dict,spans=None,spans_pos=None):
 
         else:
             spans_list = list(combinations(spans,2))
-            texts = st.selectbox(label='Index - Span', options=[None]+[f'{span_idx}: {span_el[0]} - {span_el[1]}' for span_idx, span_el in enumerate(spans_list)], key='index_span', on_change=generic.reset_select)
+            texts = st.selectbox(label='Index - Span', options=[None]+[f'{span_idx}: {span_el[0]} - {span_el[1]}' for span_idx, span_el in enumerate(spans_list)], key='index_span', on_change=generic.update_session, kwargs={'session_key':'category','key':None,'value':None})
             if texts:
                 texts_list = texts.replace(':',' -').split(' - ')
                 span_dict = [span for span in st.session_state.spans_rel if span['head']==generic.get_list_value(spans_pos,texts_list[1]) and span['child']==generic.get_list_value(spans_pos,texts_list[2])][0]

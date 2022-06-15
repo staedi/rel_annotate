@@ -19,9 +19,17 @@ def init_session(spans_rel=None):
         st.session_state['annotation'] = {'filename':None, 'data':None}
 
 
-def update_session(spans_rel,idx,value):
-    if 'spans_rel' in st.session_state:
-        st.session_state.spans_rel[idx] = value
+def update_session(session_key,key,value):
+    if session_key in st.session_state:
+        # Spans relations
+        if session_key == 'spans_rel':
+            st.session_state.spans_rel[key] = value
+        # Intermediate JSON
+        elif session_key == 'annotation':
+            st.session_state.annotation[key] = value
+        # Category selectbox
+        elif session_key == 'category':
+            st.session_state.category = None
 
 
 def pre_nlp(lines,nlp=None):
@@ -90,8 +98,11 @@ def read_text(path=None):
         else:
             json_lines = lines
 
-    st.session_state.annotation['filename'] = filename
-    st.session_state.annotation['data'] = json_lines
+    update_session('annotation','filename',filename)
+    update_session('annotation','data',json_lines)
+
+    # st.session_state.annotation['filename'] = filename
+    # st.session_state.annotation['data'] = json_lines
 
     return json_lines
 
@@ -143,7 +154,7 @@ def process_btn(json_lines,pages,page_num=0):
     return prev_page, next_page, page_num
 
 
-def reset_select():
-    if 'category' in st.session_state:
-        st.session_state.category = None
-    return
+# def reset_select(key='category'):
+#     if key in st.session_state:
+#         st.session_state.category = None
+#     return
