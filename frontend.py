@@ -2,6 +2,7 @@ import generic
 import streamlit as st
 import spacy_streamlit
 from itertools import combinations
+import pandas as pd
 import json
 import sys
 
@@ -64,6 +65,18 @@ def show_summary(texts_list,new_rel,prev_rel):
         st.markdown(f"New Relations: `{new_rel['label']}`")
 
 
+def show_table(spans_pos):
+
+    df_header = f"Entities | Relations \n---|---\n"
+    df_data = [f"***{generic.get_obj_value(spans_pos,spans['head'],access='value')}*** - ***{generic.get_obj_value(spans_pos,spans['child'],access='value')}*** | `{spans['label']}`" for spans in st.session_state.spans_rel]
+    
+    df = df_header + '\n'.join(df_data)
+
+    st.subheader('Total Entity Relations Set')
+    st.markdown(df)
+    st.markdown('\n')
+
+
 def display_sidebar(rel_dict,spans=None,spans_pos=None):
     with st.sidebar:
         if not spans and not spans_pos:
@@ -81,7 +94,7 @@ def display_sidebar(rel_dict,spans=None,spans_pos=None):
             texts = st.selectbox(label='Index - Span', options=[None]+[f'{span_idx}: {span_el[0]} - {span_el[1]}' for span_idx, span_el in enumerate(spans_list)], key='index_span', on_change=generic.update_session, kwargs={'session_key':'category','key':None,'value':None})
             if texts:
                 texts_list = texts.replace(':',' -').split(' - ')
-                span_dict = [span for span in st.session_state.spans_rel if span['head']==generic.get_list_value(spans_pos,texts_list[1]) and span['child']==generic.get_list_value(spans_pos,texts_list[2])][0]
+                span_dict = [span for span in st.session_state.spans_rel if span['head']==generic.get_obj_value(spans_pos,texts_list[1]) and span['child']==generic.get_obj_value(spans_pos,texts_list[2])][0]
                 rel_idx = st.session_state.spans_rel.index(span_dict)
 
                 category = st.selectbox(label='Category', options=[None]+list(rel_dict.keys()), key='category')
@@ -111,6 +124,10 @@ def process_iterator(iter_obj,page_num,rel_dict):
         spacy_streamlit.visualize_ner(doc,show_table=False,manual=True,labels=labels,title='')
         # st.info(text['text'])
 
+        sel_rel = st.sidebar.checkbox('Show Relations')
+        if sel_rel:
+            show_table(spans_pos)
+            
         update_status = process_spans(rel_dict=rel_dict,spans=text['spans'],spans_pos=spans_pos,spans_rel=st.session_state.spans_rel,prev_rel=text['relations'])
         generic.update_text(iter_obj,text,text_idx,st.session_state.spans_rel)
 

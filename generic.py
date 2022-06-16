@@ -113,8 +113,11 @@ def update_text(iter_obj,text,text_idx,spans_rel):
     # iter_obj[text_idx] = text
 
 
-def get_list_value(target_list,value):
-    return target_list.get(value)
+def get_obj_value(iter_obj,target_value,access='key'):
+    if access == 'key':    # access by key
+        return iter_obj.get(target_value)
+    else:   # access by value
+        return max([idx for idx,value in iter_obj.items() if value==target_value])
 
 
 def check_iterator(iter_obj,page_num):
