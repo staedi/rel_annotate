@@ -18,11 +18,14 @@ def show_pages(layout=[.1,.6]):
 
 
 def save_data(update_status,iter_obj,path=None):
-    if update_status:
+    if update_status or path:
         if not path:
-            path = 'sample2.jsonl'
-            if sys.platform != 'linux':
-                path = 'assets/' + path
+            filename = 'sample2.jsonl'
+        else:
+            filename = f"{path.name[:path.name.rfind('.')]}_out.jsonl"
+
+        if sys.platform != 'linux':
+            filename = f'assets/{filename}'
         
         if sys.platform == 'linux':
             json_str = '\n'.join(iter_obj)
@@ -32,7 +35,7 @@ def save_data(update_status,iter_obj,path=None):
         else:
             save = st.button('Save',key='save')
             if save:
-                with open(path, "w", encoding="utf-8") as jsonfile:
+                with open(filename, "w", encoding="utf-8") as jsonfile:
                     for entry in iter_obj:
                         # json.dump(entry,jsonfile)
                         jsonfile.write(entry)
@@ -43,7 +46,7 @@ def process_spans(rel_dict,spans,spans_pos,spans_rel,prev_rel):
     sel_spans = st.multiselect('Entities',key='multi_spans',options=[span['text'] for span in spans])
 
     if len(sel_spans)>=2:
-        _, texts_list, rel_idx, rel_str = display_sidebar(rel_dict=rel_dict,spans=sel_spans,spans_pos=spans_pos)
+        _, _, texts_list, rel_idx, rel_str = display_sidebar(rel_dict=rel_dict,spans=sel_spans,spans_pos=spans_pos)
         if rel_idx != None:
             show_summary(texts_list,rel_str,prev_rel[rel_idx])
 
@@ -66,7 +69,6 @@ def show_summary(texts_list,new_rel,prev_rel):
 
 
 def show_table(spans_pos):
-
     df_header = f"Entities | Relations \n---|---\n"
     df_data = [f"***{generic.get_obj_value(spans_pos,spans['head'],access='value')}*** - ***{generic.get_obj_value(spans_pos,spans['child'],access='value')}*** | `{spans['label']}`" for spans in st.session_state.spans_rel]
     
@@ -84,7 +86,7 @@ def display_sidebar(rel_dict,spans=None,spans_pos=None):
             upload = st.file_uploader('Upload',type=['txt','jsonl'],key='upload')
             json_lines = generic.read_text(upload)
 
-            return json_lines, None, None, {}
+            return upload, json_lines, None, None, {}
 
         elif not spans:
             st.subheader('Select entities to analyze')
@@ -109,8 +111,8 @@ def display_sidebar(rel_dict,spans=None,spans_pos=None):
                                 # return texts_list, rel_idx, span_dict
                     else:
                         span_dict['label'] = 'No-rel'
-                return None, texts_list, rel_idx, span_dict
-    return None, None, None, {}
+                return None, None, texts_list, rel_idx, span_dict
+    return None, None, None, None, {}
 
 
 def process_iterator(iter_obj,page_num,rel_dict):

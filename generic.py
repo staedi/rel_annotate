@@ -133,7 +133,7 @@ def process_text(text_idx, line):
     text = json.loads(line)
     spans_rel = [dict((key,rel[key]) for key in ('head','child','label')) for rel in text['relations']]
     spans_rel = text['relations']
-    if not st.session_state.spans_rel:
+    if not st.session_state.spans_rel or spans_rel != st.session_state.spans_rel:
         init_session(spans_rel)
 
     spans_pos = dict((span['text'],span['token_start']) for span in text['spans'])
