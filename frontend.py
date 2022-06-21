@@ -6,15 +6,19 @@ import pandas as pd
 import json
 import sys
 
-def show_pages(layout=[.1,.6]):
-    col1, col2 = st.columns(layout)
+def show_pages(type='page',data=None,layout=[.1,.6]):
+    cols = st.columns(layout)
+    returns = []
 
-    with col1:
-        prev_page = st.button('Prev Page',key='prev_page')
-    with col2:
-        next_page = st.button('Next Page',key='next_page')
+    if type == 'page':
+        data = ['Prev Page','Next Page']
 
-    return prev_page, next_page
+    for col_idx, col in enumerate(cols):
+        with col:
+            if type == 'page':
+                returns.append(st.button(data[col_idx],key=data[col_idx].lower().replace(' ','_')))
+
+    return returns
 
 
 def save_data(update_status,iter_obj,path=None):
@@ -122,9 +126,30 @@ def process_iterator(iter_obj,page_num,rel_dict):
         st.markdown(f'Current Page: `{page_num+1}` of `{len(iter_obj)}`')
         st.subheader('Text to Annotate!')
 
+        ## NEW - Modify spans
+        tokens_sets = [{'text':tokens['text'],'start':tokens['start'],'token_start':tokens['id']} for tokens in text['tokens']]
+        spans_sets = []
+        # relations = []
+
+        edit_spans = st.sidebar.radio('Modify spans',[None,'Reset','Individual'])
+        if edit_spans == 'Reset':   # Resetting previous spans and relations
+            iter_idx = 0
+            while tokens_sets or iter_idx < 0:
+                span_multisels = st.multiselect(f'Span-{iter_idx}',key=f'span_{iter_idx}',options=map(lambda x:f"{x['token_start']}: {x['text']}",tokens_sets))
+                text, spans_sets, tokens_sets, iter_idx = generic.process_multisel_span(span_multisels=span_multisels,text=text,spans_sets=spans_sets,tokens_sets=tokens_sets,type=edit_spans,iter_idx=iter_idx)
+
+        elif edit_spans == 'Individual':    # Only changing selected span
+            span_sel = st.selectbox('Span',map(lambda x:f"{text['spans'].index(x)}: {x['text']}",text['spans']))
+            spans_sets, tokens_sets = generic.process_sel_span(span_sel=span_sel,text=text,tokens_sets=tokens_sets)
+            span_multisel = st.multiselect(f'Span',options=map(lambda x:f"{x['token_start']}: {x['text']}",tokens_sets))
+            text, spans_sets, tokens_sets, iter_idx = generic.process_multisel_span(span_multisels=span_multisel,text=text,spans_sets=spans_sets,tokens_sets=tokens_sets,type=edit_spans,iter_idx=int(span_sel[:span_sel.find(':')]))
+
+        relations = generic.make_relations(spans_sets,text)
+
         doc, labels = generic.process_displayc(text)
         spacy_streamlit.visualize_ner(doc,show_table=False,manual=True,labels=labels,title='')
         # st.info(text['text'])
+        show_pages(type='spans',layout=[.2,.3])
 
         sel_rel = st.sidebar.checkbox('Show Relations')
         if sel_rel:

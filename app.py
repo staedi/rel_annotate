@@ -17,8 +17,9 @@ generic.init_session()
 upload, json_lines, _, _, _ = frontend.display_sidebar(rel_dict=relations_dict)
 # json_lines = generic.read_text()
 
-prev_page, next_page = frontend.show_pages()
-prev_page, next_page, update_status = frontend.display_texts(json_lines=json_lines,pages=[prev_page, next_page],rel_dict=relations_dict)
+# prev_page, next_page = frontend.show_pages(type='page')
+pages = frontend.show_pages(type='page')
+prev_page, next_page, update_status = frontend.display_texts(json_lines=json_lines,pages=pages,rel_dict=relations_dict)
 
 frontend.save_data(update_status,json_lines,upload)
 # generic.write_text(json_lines,save)
