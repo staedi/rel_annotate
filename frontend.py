@@ -47,7 +47,7 @@ def save_data(update_status,iter_obj,path=None):
 
 def process_spans(rel_dict,spans,spans_pos,spans_rel,prev_rel):
     st.subheader('Select span elements!')
-    sel_spans = st.multiselect('Entities',key='multi_spans',options=[span['text'] for span in spans])
+    sel_spans = st.multiselect('Entities',key='multi_spans',options=[span['text'] for span in spans],on_change=generic.update_session,kwargs={'session_key':'radio_spans','key':None,'value':None})
 
     if len(sel_spans)>=2:
         _, _, texts_list, rel_idx, rel_str = display_sidebar(rel_dict=rel_dict,spans=sel_spans,spans_pos=spans_pos)
@@ -131,20 +131,26 @@ def process_iterator(iter_obj,page_num,rel_dict):
         spans_sets = []
         # relations = []
 
-        edit_spans = st.sidebar.radio('Modify spans',[None,'Reset','Individual'])
-        if edit_spans == 'Reset':   # Resetting previous spans and relations
+        edit_spans = st.sidebar.radio('Modify spans',key='radio_spans',options=[None,'Reset','Individual'])
+
+        if edit_spans:
             iter_idx = 0
-            while tokens_sets or iter_idx < 0:
-                span_multisels = st.multiselect(f'Span-{iter_idx}',key=f'span_{iter_idx}',options=map(lambda x:f"{x['token_start']}: {x['text']}",tokens_sets))
-                text, spans_sets, tokens_sets, iter_idx = generic.process_multisel_span(span_multisels=span_multisels,text=text,spans_sets=spans_sets,tokens_sets=tokens_sets,type=edit_spans,iter_idx=iter_idx)
+            if edit_spans == 'Reset':   # Resetting previous spans and relations
+                while tokens_sets and iter_idx >= 0:
+                    span_multisels = st.multiselect(f'Span-{iter_idx}',key=f'span_{iter_idx}',options=map(lambda x:f"{x['token_start']}: {x['text']}",tokens_sets))
+                    text, spans_sets, tokens_sets, iter_idx = generic.process_multisel_span(span_multisels=span_multisels,text=text,spans_sets=spans_sets,tokens_sets=tokens_sets,type=edit_spans,iter_idx=iter_idx)
+                    relations = generic.make_relations(spans=spans_sets,text=text,type=edit_spans)
 
-        elif edit_spans == 'Individual':    # Only changing selected span
-            span_sel = st.selectbox('Span',map(lambda x:f"{text['spans'].index(x)}: {x['text']}",text['spans']))
-            spans_sets, tokens_sets = generic.process_sel_span(span_sel=span_sel,text=text,tokens_sets=tokens_sets)
-            span_multisel = st.multiselect(f'Span',options=map(lambda x:f"{x['token_start']}: {x['text']}",tokens_sets))
-            text, spans_sets, tokens_sets, iter_idx = generic.process_multisel_span(span_multisels=span_multisel,text=text,spans_sets=spans_sets,tokens_sets=tokens_sets,type=edit_spans,iter_idx=int(span_sel[:span_sel.find(':')]))
+            elif edit_spans == 'Individual':    # Only changing selected span
+                span_sel = st.selectbox('Span',key='select_span',options=[None]+list(map(lambda x:f"{text['spans'].index(x)}: {x['text']}",text['spans'])))
+                if span_sel:
+                    spans_sets, tokens_sets = generic.process_sel_span(span_sel=span_sel,text=text,tokens_sets=tokens_sets)
+                    span_multisel = st.multiselect(f'Span',options=map(lambda x:f"{x['token_start']}: {x['text']}",tokens_sets))
+                    iter_idx=int(span_sel[:span_sel.find(':')])
+                    text, spans_sets, tokens_sets, spans_idx = generic.process_multisel_span(span_multisels=span_multisel,text=text,spans_sets=spans_sets,tokens_sets=tokens_sets,type=edit_spans,iter_idx=iter_idx)
+                    relations = generic.make_relations(spans=spans_sets[iter_idx],text=text,iter_idx=spans_idx,type=edit_spans)
 
-        relations = generic.make_relations(spans_sets,text)
+            # relations = generic.make_relations(spans_sets,text,iter_idx)
 
         doc, labels = generic.process_displayc(text)
         spacy_streamlit.visualize_ner(doc,show_table=False,manual=True,labels=labels,title='')
@@ -157,6 +163,7 @@ def process_iterator(iter_obj,page_num,rel_dict):
             
         update_status = process_spans(rel_dict=rel_dict,spans=text['spans'],spans_pos=spans_pos,spans_rel=st.session_state.spans_rel,prev_rel=text['relations'])
         generic.update_text(iter_obj,text,text_idx,st.session_state.spans_rel)
+
 
         return update_status
 
