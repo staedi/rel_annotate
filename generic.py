@@ -327,9 +327,6 @@ def process_multisel_span(text,spans_sets,tokens_sets,type,span_multisel=None,it
         if type == 'Reset':
             spans_sets.append(make_spans([token for token in tokens_sets if token['token_start']>=span_start and token['token_start']<=span_end]))
             tokens_sets = [token for token in tokens_sets if (span_start>0 and token['token_start']<span_start) or (span_end<len(text['tokens']) and token['token_start']>span_end)]
-
-            st.write(tokens_sets)
-
             iters = iter_idx + 1            
             update_session(session_key='spans',value=spans_sets)
             make_relations(spans=spans_sets,type=type)
@@ -337,7 +334,7 @@ def process_multisel_span(text,spans_sets,tokens_sets,type,span_multisel=None,it
         elif type == 'Individual':
             prev_span = {key:val for key,val in spans_sets[iter_idx].items() if key in ('start','end','token_start','token_end','label')}
             iters = [{idx:'head_span'} if x['head_span']==prev_span else {idx:'child_span'} for idx,x in enumerate(text['relations']) if x['head_span']==prev_span or x['child_span']==prev_span]
-            st.write(make_spans([token for token in tokens_sets if token['token_start']>=span_start and token['token_start']<=span_end]))
+            # st.write(make_spans([token for token in tokens_sets if token['token_start']>=span_start and token['token_start']<=span_end]))
             spans_sets[iter_idx] = make_spans([token for token in tokens_sets if token['token_start']>=span_start and token['token_start']<=span_end])
 
             update_session(session_key='spans',key=iter_idx,value=spans_sets[iter_idx])
