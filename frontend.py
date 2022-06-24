@@ -1,3 +1,4 @@
+from requests import session
 import generic
 import streamlit as st
 import spacy_streamlit
@@ -112,12 +113,12 @@ def show_summary(texts_list,new_rel,prev_rel):
 
 
 def show_table(spans_pos):
-    df_header = f"Entities | Relations \n---|---\n"
+    df_header = f"Entities | Previous Relations \n---|---\n"
     df_data = [f"***{generic.get_obj_value(spans_pos,spans['head'],access='value')}*** - ***{generic.get_obj_value(spans_pos,spans['child'],access='value')}*** | `{spans['label']}`" for spans in st.session_state.relations]
     
     df = df_header + '\n'.join(df_data)
 
-    st.subheader('Total Entity Relations Set')
+    st.subheader('Entity Relations for the Entire Set')
     st.markdown(df)
     st.markdown('\n')
 
