@@ -227,8 +227,7 @@ def update_text(iter_obj,text,text_idx,relations):
 
 def get_obj_value(iter_obj,target_value,access='key'):
     if access == 'key':    # access by key
-        target_list = target_value.replace('(','').replace(')','').split()
-
+        target_list = target_value.replace('(','').replace(')','-').split('-')
         if len(target_list)==1:
             target_list.append(0)
         else:
