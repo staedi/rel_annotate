@@ -2,7 +2,6 @@ import generic
 import streamlit as st
 import spacy_streamlit
 from itertools import combinations
-import pandas as pd
 import json
 import sys
 
@@ -45,9 +44,10 @@ def save_data(update_status,iter_obj,path=None):
                         jsonfile.write(entry)
                         jsonfile.write('\n')        
 
-def process_spans(rel_dict,spans,spans_pos,spans_rel,prev_rel):
+
+def process_spans(rel_dict,spans,spans_pos,relations,prev_rel):
     st.subheader('Select span elements!')
-    sel_spans = st.multiselect('Entities',key='multi_spans',options=[span['text'] for span in spans],on_change=generic.update_session,kwargs={'session_key':'radio_spans','key':None,'value':None})
+    sel_spans = st.multiselect('Entities',key='multi_spans',options=[span['text'] for span in spans],on_change=generic.update_session,kwargs={'session_key':'radio_spans','value':None})
 
     if len(sel_spans)>=2:
         _, _, texts_list, rel_idx, rel_str = display_sidebar(rel_dict=rel_dict,spans=sel_spans,spans_pos=spans_pos)
@@ -55,12 +55,52 @@ def process_spans(rel_dict,spans,spans_pos,spans_rel,prev_rel):
             show_summary(texts_list,rel_str,prev_rel[rel_idx])
 
         if len(rel_str) > 0:
-            # show_summary(texts_list,rel_str,spans_rel[rel_idx])
-            generic.update_session('spans_rel',rel_idx,rel_str)
+            generic.update_session(session_key='relations',key=rel_idx,value=rel_str)
 
             return True
 
     return None
+
+
+def process_edit(edit_spans,text):
+    if edit_spans:
+        st.subheader('Modify span entities!')
+        tokens_sets = [{'text':tokens['text'],'start':tokens['start'],'token_start':tokens['id']} for tokens in text['tokens']]
+        spans_sets = []
+
+        iter_idx = 0
+        if edit_spans == 'Reset':   # Resetting previous spans and relations
+            while tokens_sets and iter_idx >= 0:
+                span_start = st.selectbox(f'Starting token (Index: {iter_idx})',key=f'span_start_{iter_idx}',options=[None]+list(map(lambda x:f"{x['token_start']}: {x['text']}",tokens_sets)))                
+                # span_start = st.selectbox(f'Starting token (Index: {iter_idx})',key=f'span_start_{iter_idx}',options=[None]+list(map(lambda x:f"{x['token_start']}: {x['text']}",tokens_sets)),on_change=generic.process_multisel_span,kwargs={'text':text,'spans_sets':spans_sets,'tokens_sets':tokens_sets,'type':edit_spans,'iter_idx':iter_idx})
+                if span_start:
+                    tokens_list = [token for token in tokens_sets if token['token_start']>=int(span_start[:span_start.find(':')])]
+                    span_end = st.selectbox(f'Ending token (Index: {iter_idx})',key=f'span_end_{iter_idx}',options=map(lambda x:f"{x['token_start']}: {x['text']}",tokens_list))
+                    span_multisel = [span_start,span_end]
+                    text, spans_sets, tokens_sets, iter_idx = generic.process_multisel_span(span_multisel=span_multisel,text=text,spans_sets=spans_sets,tokens_sets=tokens_sets,type=edit_spans,iter_idx=iter_idx)
+                else:
+                    break
+
+            #     # span_multisels = st.multiselect(f'Span (Index: {iter_idx})',key=f'span_{iter_idx}',options=map(lambda x:f"{x['token_start']}: {x['text']}",tokens_sets))
+            #     # text, spans_sets, tokens_sets, iter_idx = generic.process_multisel_span(span_multisel=span_multisels,text=text,spans_sets=spans_sets,tokens_sets=tokens_sets,type=edit_spans,iter_idx=iter_idx)
+
+
+        elif edit_spans == 'Individual':    # Only changing selected span
+            span_sel = st.selectbox(f'Span to modify',key='select_span',options=[None]+list(map(lambda x:f"{text['spans'].index(x)}: {x['text']}",text['spans'])))
+
+            if span_sel:
+                iter_idx = int(span_sel[:span_sel.find(':')])
+                spans_sets, tokens_sets = generic.process_sel_span(span_sel=span_sel,text=text,tokens_sets=tokens_sets)                
+                # span_multisel = st.multiselect('Span',key='multi_span',options=map(lambda x:f"{x['token_start']}: {x['text']}",tokens_sets),on_change=generic.process_multisel_span,kwargs={'text':text,'spans_sets':spans_sets,'tokens_sets':tokens_sets,'type':edit_spans,'iter_idx':iter_idx})
+
+                span_start = st.selectbox(f'Starting token',key='span_start',options=[None]+list(map(lambda x:f"{x['token_start']}: {x['text']}",tokens_sets)))
+                if span_start:
+                    tokens_list = [token for token in tokens_sets if token['token_start']>=int(span_start[:span_start.find(':')])]
+                    span_end = st.selectbox(f'Ending token',key='span_end',options=map(lambda x:f"{x['token_start']}: {x['text']}",tokens_list),on_change=generic.process_multisel_span,kwargs={'text':text,'spans_sets':spans_sets,'tokens_sets':tokens_sets,'type':edit_spans,'iter_idx':iter_idx})
+                    span_multisel = [span_start,span_end]
+                    text, spans_sets, tokens_sets, iter_idx = generic.process_multisel_span(span_multisel=span_multisel,text=text,spans_sets=spans_sets,tokens_sets=tokens_sets,type=edit_spans,iter_idx=iter_idx)
+
+    # return st.session_state.spans, st.session_state.relations
 
 
 def show_summary(texts_list,new_rel,prev_rel):
@@ -74,7 +114,7 @@ def show_summary(texts_list,new_rel,prev_rel):
 
 def show_table(spans_pos):
     df_header = f"Entities | Relations \n---|---\n"
-    df_data = [f"***{generic.get_obj_value(spans_pos,spans['head'],access='value')}*** - ***{generic.get_obj_value(spans_pos,spans['child'],access='value')}*** | `{spans['label']}`" for spans in st.session_state.spans_rel]
+    df_data = [f"***{generic.get_obj_value(spans_pos,spans['head'],access='value')}*** - ***{generic.get_obj_value(spans_pos,spans['child'],access='value')}*** | `{spans['label']}`" for spans in st.session_state.relations]
     
     df = df_header + '\n'.join(df_data)
 
@@ -97,11 +137,11 @@ def display_sidebar(rel_dict,spans=None,spans_pos=None):
 
         else:
             spans_list = list(combinations(spans,2))
-            texts = st.selectbox(label='Index - Span', options=[None]+[f'{span_idx}: {span_el[0]} - {span_el[1]}' for span_idx, span_el in enumerate(spans_list)], key='index_span', on_change=generic.update_session, kwargs={'session_key':'category','key':None,'value':None})
+            texts = st.selectbox(label='Index - Span', options=[None]+[f'{span_idx}: {span_el[0]} - {span_el[1]}' for span_idx, span_el in enumerate(spans_list)], key='index_span', on_change=generic.update_session, kwargs={'session_key':'category','value':None})
             if texts:
                 texts_list = texts.replace(':',' -').split(' - ')
-                span_dict = [span for span in st.session_state.spans_rel if span['head']==generic.get_obj_value(spans_pos,texts_list[1]) and span['child']==generic.get_obj_value(spans_pos,texts_list[2])][0]
-                rel_idx = st.session_state.spans_rel.index(span_dict)
+                span_dict = [span for span in st.session_state.relations if span['head']==generic.get_obj_value(spans_pos,texts_list[1]) and span['child']==generic.get_obj_value(spans_pos,texts_list[2])][0]
+                rel_idx = st.session_state.relations.index(span_dict)
 
                 category = st.selectbox(label='Category', options=[None]+list(rel_dict.keys()), key='category')
 
@@ -121,36 +161,19 @@ def display_sidebar(rel_dict,spans=None,spans_pos=None):
 
 def process_iterator(iter_obj,page_num,rel_dict):
     text_idx, line = generic.check_iterator(iter_obj,page_num)
+
     if len(line) > 0:
-        text, spans_rel, spans_pos = generic.process_text(text_idx, line)
         st.markdown(f'Current Page: `{page_num+1}` of `{len(iter_obj)}`')
-        st.subheader('Text to Annotate!')
+        text, relations = generic.process_text(text_idx, line)
+        text['spans'], text['relations'] = st.session_state.spans, st.session_state.relations
 
         ## NEW - Modify spans
-        tokens_sets = [{'text':tokens['text'],'start':tokens['start'],'token_start':tokens['id']} for tokens in text['tokens']]
-        spans_sets = []
-        # relations = []
-
         edit_spans = st.sidebar.radio('Modify spans',key='radio_spans',options=[None,'Reset','Individual'])
+        process_edit(edit_spans,text)
 
-        if edit_spans:
-            iter_idx = 0
-            if edit_spans == 'Reset':   # Resetting previous spans and relations
-                while tokens_sets and iter_idx >= 0:
-                    span_multisels = st.multiselect(f'Span-{iter_idx}',key=f'span_{iter_idx}',options=map(lambda x:f"{x['token_start']}: {x['text']}",tokens_sets))
-                    text, spans_sets, tokens_sets, iter_idx = generic.process_multisel_span(span_multisels=span_multisels,text=text,spans_sets=spans_sets,tokens_sets=tokens_sets,type=edit_spans,iter_idx=iter_idx)
-                    relations = generic.make_relations(spans=spans_sets,text=text,type=edit_spans)
-
-            elif edit_spans == 'Individual':    # Only changing selected span
-                span_sel = st.selectbox('Span',key='select_span',options=[None]+list(map(lambda x:f"{text['spans'].index(x)}: {x['text']}",text['spans'])))
-                if span_sel:
-                    spans_sets, tokens_sets = generic.process_sel_span(span_sel=span_sel,text=text,tokens_sets=tokens_sets)
-                    span_multisel = st.multiselect(f'Span',options=map(lambda x:f"{x['token_start']}: {x['text']}",tokens_sets))
-                    iter_idx=int(span_sel[:span_sel.find(':')])
-                    text, spans_sets, tokens_sets, spans_idx = generic.process_multisel_span(span_multisels=span_multisel,text=text,spans_sets=spans_sets,tokens_sets=tokens_sets,type=edit_spans,iter_idx=iter_idx)
-                    relations = generic.make_relations(spans=spans_sets[iter_idx],text=text,iter_idx=spans_idx,type=edit_spans)
-
-            # relations = generic.make_relations(spans_sets,text,iter_idx)
+        st.subheader('Text to Annotate!')
+        text['spans'], text['relations'] = st.session_state.spans, st.session_state.relations
+        spans_pos = dict((span['text'],span['token_start']) for span in text['spans'])
 
         doc, labels = generic.process_displayc(text)
         spacy_streamlit.visualize_ner(doc,show_table=False,manual=True,labels=labels,title='')
@@ -161,9 +184,7 @@ def process_iterator(iter_obj,page_num,rel_dict):
         if sel_rel:
             show_table(spans_pos)
             
-        update_status = process_spans(rel_dict=rel_dict,spans=text['spans'],spans_pos=spans_pos,spans_rel=st.session_state.spans_rel,prev_rel=text['relations'])
-        generic.update_text(iter_obj,text,text_idx,st.session_state.spans_rel)
-
+        update_status = process_spans(rel_dict=rel_dict,spans=text['spans'],spans_pos=spans_pos,relations=st.session_state.relations,prev_rel=text['relations'])
 
         return update_status
 
