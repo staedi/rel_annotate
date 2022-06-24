@@ -48,7 +48,8 @@ def save_data(update_status,iter_obj,path=None):
 
 def process_spans(rel_dict,spans,spans_pos,relations,prev_rel):
     st.subheader('Select span elements!')
-    sel_spans = st.multiselect('Entities',key='multi_spans',options=[span['text'] for span in spans],on_change=generic.update_session,kwargs={'session_key':'radio_spans','value':None})
+    # sel_spans = st.multiselect('Entities',key='multi_spans',options=[f"{span['text']}({span['token_start']})" for span in spans],on_change=generic.update_session,kwargs={'session_key':'radio_spans','value':None})
+    sel_spans = st.multiselect('Entities',key='multi_spans',options=[f'{text} ({idx+1})' if len(tokens_start)>1 else text for text, tokens_start in spans_pos.items() for idx in range(len(tokens_start))],on_change=generic.update_session,kwargs={'session_key':'radio_spans','value':None})
 
     if len(sel_spans)>=2:
         _, _, texts_list, rel_idx, rel_str = display_sidebar(rel_dict=rel_dict,spans=sel_spans,spans_pos=spans_pos)
@@ -137,11 +138,20 @@ def display_sidebar(rel_dict,spans=None,spans_pos=None):
 
         else:
             spans_list = list(combinations(spans,2))
-            texts = st.selectbox(label='Index - Span', options=[None]+[f'{span_idx}: {span_el[0]} - {span_el[1]}' for span_idx, span_el in enumerate(spans_list)], key='index_span', on_change=generic.update_session, kwargs={'session_key':'category','value':None})
+            # texts = st.selectbox(label='Index - Span', options=[None]+[f'{span_idx}: {span_el[0]} - {span_el[1]}' for span_idx, span_el in enumerate(spans_list)], key='index_span', on_change=generic.update_session, kwargs={'session_key':'category','value':None})
+            texts = st.selectbox(label='Index: Entity 1 - Entity 2', options=[None]+[f'{span_idx}: {span_el[0]} - {span_el[1]}' for span_idx, span_el in enumerate(spans_list)], key='index_span', on_change=generic.update_session, kwargs={'session_key':'category','value':None})
             if texts:
                 texts_list = texts.replace(':',' -').split(' - ')
+                texts_pos = [int(texts_list[1][texts_list[1].find('(')+1:texts_list[1].find(')')]), int(texts_list[2][texts_list[2].find('(')+1:texts_list[2].find(')')])]
+
+                st.write(texts_list)
+                st.write(texts_pos)
+
                 span_dict = [span for span in st.session_state.relations if span['head']==generic.get_obj_value(spans_pos,texts_list[1]) and span['child']==generic.get_obj_value(spans_pos,texts_list[2])][0]
+                # span_dict = [span for span in st.session_state.relations if span['head']==texts_pos[0] and span['child']==texts_pos[1]][0]
                 rel_idx = st.session_state.relations.index(span_dict)
+
+                st.write(span_dict)
 
                 category = st.selectbox(label='Category', options=[None]+list(rel_dict.keys()), key='category')
 
@@ -174,11 +184,22 @@ def process_iterator(iter_obj,page_num,rel_dict):
 
         st.subheader('Text to Annotate!')
         text['spans'], text['relations'] = st.session_state.spans, st.session_state.relations
-        spans_pos = dict((span['text'],span['token_start']) for span in text['spans'])
+        # spans_pos = dict((span['text'],span['token_start']) for span in text['spans'])
+        # spans_pos = [(span['text'],span['token_start']) for span in text['spans']]
+        
+        spans_pos = dict()
+        for span in text['spans']:
+            if spans_pos.get(span['text']):
+                spans_pos[span['text']].append(span['token_start'])
+            else:
+                spans_pos[span['text']] = [span['token_start']]
 
         doc, labels = generic.process_displayc(text)
-        spacy_streamlit.visualize_ner(doc,show_table=False,manual=True,labels=labels,title='')
-        # st.info(text['text'])
+        if labels:
+            spacy_streamlit.visualize_ner(doc,show_table=False,manual=True,labels=labels,title='')
+        else:
+            st.info(text['text'])  
+
         show_pages(type='spans',layout=[.2,.3])
 
         sel_rel = st.sidebar.checkbox('Show Relations',key='check_rel')

@@ -227,9 +227,19 @@ def update_text(iter_obj,text,text_idx,relations):
 
 def get_obj_value(iter_obj,target_value,access='key'):
     if access == 'key':    # access by key
-        return iter_obj.get(target_value)
+        target_list = target_value.replace('(','').replace(')','').split()
+
+        if len(target_list)==1:
+            target_list.append(0)
+        else:
+            target_list[1] = int(target_list[1])-1
+
+        return iter_obj.get(target_list[0])[target_list[1]]
+        # return iter_obj.get(target_value)
+        # return max([iter[1] for iter in iter_obj if iter[0]==target_value])
     else:   # access by value
-        return max([idx for idx,value in iter_obj.items() if value==target_value])
+        # return max([f'{value.index(target_value)+1}: {idx}' if len(value)>1 else idx for idx,value in iter_obj.items() if target_value in value])
+        return max([f'{idx} ({value.index(target_value)+1})' if len(value)>1 else idx for idx,value in iter_obj.items() if target_value in value])
 
 
 def check_iterator(iter_obj,page_num):
