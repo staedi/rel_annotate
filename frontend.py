@@ -142,17 +142,9 @@ def display_sidebar(rel_dict,spans=None,spans_pos=None):
             texts = st.selectbox(label='Index: Entity 1 - Entity 2', options=[None]+[f'{span_idx}: {span_el[0]} - {span_el[1]}' for span_idx, span_el in enumerate(spans_list)], key='index_span', on_change=generic.update_session, kwargs={'session_key':'category','value':None})
             if texts:
                 texts_list = texts.replace(':',' -').split(' - ')
-                texts_pos = [int(texts_list[1][texts_list[1].find('(')+1:texts_list[1].find(')')]), int(texts_list[2][texts_list[2].find('(')+1:texts_list[2].find(')')])]
-
-                st.write(texts_list)
-                st.write(texts_pos)
-
                 span_dict = [span for span in st.session_state.relations if span['head']==generic.get_obj_value(spans_pos,texts_list[1]) and span['child']==generic.get_obj_value(spans_pos,texts_list[2])][0]
                 # span_dict = [span for span in st.session_state.relations if span['head']==texts_pos[0] and span['child']==texts_pos[1]][0]
                 rel_idx = st.session_state.relations.index(span_dict)
-
-                st.write(span_dict)
-
                 category = st.selectbox(label='Category', options=[None]+list(rel_dict.keys()), key='category')
 
                 if category != None:
@@ -179,7 +171,10 @@ def process_iterator(iter_obj,page_num,rel_dict):
         text['spans'], text['relations'] = st.session_state.spans, st.session_state.relations
 
         ## NEW - Modify spans
-        edit_spans = st.sidebar.radio('Modify spans',key='radio_spans',options=[None,'Reset','Individual'])
+        radio_options = ['None','Reset']
+        if len(text['spans'])>1:
+            radio_options.append('Individual')
+        edit_spans = st.sidebar.radio('Modify spans',key='radio_spans',options=radio_options)
         process_edit(edit_spans,text)
 
         st.subheader('Text to Annotate!')
