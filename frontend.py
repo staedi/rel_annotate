@@ -171,7 +171,7 @@ def process_iterator(iter_obj,page_num,rel_dict):
         text['spans'], text['relations'] = st.session_state.spans, st.session_state.relations
 
         ## NEW - Modify spans
-        radio_options = ['None','Reset']
+        radio_options = [None,'Reset']
         if len(text['spans'])>1:
             radio_options.append('Individual')
         edit_spans = st.sidebar.radio('Modify spans',key='radio_spans',options=radio_options)
