@@ -55,8 +55,7 @@ def process_spans(rel_dict,spans,spans_pos,relations,prev_rel):
             show_summary(texts_list,rel_str,prev_rel[rel_idx])
 
         if len(rel_str) > 0:
-            generic.update_session(session_key='relations',key=rel_idx,value=rel_str)
-
+            # generic.update_session(session_key='relations',key=rel_idx,value=rel_str)
             return True
 
     return None
@@ -155,6 +154,7 @@ def display_sidebar(rel_dict,spans=None,spans_pos=None):
                                 # return texts_list, rel_idx, span_dict
                     else:
                         span_dict['label'] = 'No-rel'
+                    generic.update_session(session_key='relations',key=rel_idx,value=span_dict)
                 return None, None, texts_list, rel_idx, span_dict
     return None, None, None, None, {}
 
@@ -180,7 +180,7 @@ def process_iterator(iter_obj,page_num,rel_dict):
         # st.info(text['text'])
         show_pages(type='spans',layout=[.2,.3])
 
-        sel_rel = st.sidebar.checkbox('Show Relations')
+        sel_rel = st.sidebar.checkbox('Show Relations',key='check_rel')
         if sel_rel:
             show_table(spans_pos)
             
