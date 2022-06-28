@@ -1,4 +1,3 @@
-from requests import session
 import generic
 import streamlit as st
 import spacy_streamlit
@@ -6,7 +5,7 @@ from itertools import combinations
 import json
 import sys
 
-def show_pages(type='page',data=None,layout=[.1,.6]):
+def show_layout(type='page',data=None,layout=[.1,.6]):
     cols = st.columns(layout)
     returns = []
 
@@ -15,7 +14,9 @@ def show_pages(type='page',data=None,layout=[.1,.6]):
 
     for col_idx, col in enumerate(cols):
         with col:
-            if type == 'page':
+            # if type == 'page':
+            #     returns.append(st.button(data[col_idx],key=data[col_idx].lower().replace(' ','_')))
+            if data:
                 returns.append(st.button(data[col_idx],key=data[col_idx].lower().replace(' ','_')))
 
     return returns
@@ -26,7 +27,9 @@ def save_data(update_status,iter_obj,path=None):
         if not path:
             filename = 'sample2.jsonl'
         else:
-            filename = f"{path.name[:path.name.rfind('.')]}_out.jsonl"
+            filename = path.name
+        # else:
+        #     filename = f"{path.name[:path.name.rfind('.')]}_out.jsonl"
 
         if sys.platform != 'linux':
             filename = f'assets/{filename}'
@@ -37,13 +40,16 @@ def save_data(update_status,iter_obj,path=None):
             save = st.download_button('Download',key='save',data=json_str,file_name=path)
 
         else:
-            save = st.button('Save',key='save')
-            if save:
+            overwrite, save_copy = show_layout(type='save',data=['Overwrite','Save as'])
+            if overwrite or save_copy:
+                if save_copy and path:
+                    filename = f"{path.name[:path.name.rfind('.')]}_out.jsonl"
                 with open(filename, "w", encoding="utf-8") as jsonfile:
                     for entry in iter_obj:
                         # json.dump(entry,jsonfile)
                         jsonfile.write(entry)
-                        jsonfile.write('\n')        
+                        jsonfile.write('\n')
+
 
 
 def process_spans(rel_dict,spans,spans_pos,relations,prev_rel):
@@ -200,7 +206,10 @@ def process_iterator(iter_obj,page_num,rel_dict):
         text['spans'], text['relations'] = st.session_state.spans, st.session_state.relations
         # spans_pos = dict((span['text'],span['token_start']) for span in text['spans'])
         # spans_pos = [(span['text'],span['token_start']) for span in text['spans']]
-        
+
+        iter_obj[st.session_state.page] = json.dumps({'text':st.session_state.text,'spans':st.session_state.spans,'tokens':json.loads(iter_obj[st.session_state.page])['tokens'],'_view_id':'relations','relations':st.session_state.relations,'answer':'accept'})
+        generic.update_session(session_key='annotation',key='data',value=iter_obj)
+
         spans_pos = dict()
         for span in text['spans']:
             if spans_pos.get(span['text']):
@@ -214,7 +223,7 @@ def process_iterator(iter_obj,page_num,rel_dict):
         else:
             st.info(text['text'])  
 
-        show_pages(type='spans',layout=[.2,.3])
+        show_layout(type='spans',layout=[.2,.3])
 
         sel_rel = st.sidebar.checkbox('Show Relations',key='check_rel')
         if sel_rel and len(spans_pos)>1:

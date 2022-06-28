@@ -1,6 +1,5 @@
 from io import StringIO
 from itertools import combinations
-from requests import session
 import spacy
 import streamlit as st
 import json
@@ -10,6 +9,8 @@ def init_session(session_key=None): # No updates
     if not session_key:
         if 'page' not in st.session_state:
             st.session_state['page'] = 0
+        if 'visited' not in st.session_state:
+            st.session_state['visited'] = [0]
         if 'text' not in st.session_state:
             st.session_state['text'] = None
         if 'spans' not in st.session_state:
@@ -26,6 +27,7 @@ def init_session(session_key=None): # No updates
 
     elif session_key == 'page':
         st.session_state.page = 0
+        st.session_state.visited = [0]
     elif session_key == 'text':
         st.session_state.text = None
     elif session_key == 'spans':
@@ -53,6 +55,8 @@ def update_session(session_key,value,key=None):
         # Page
         elif session_key == 'page':
             st.session_state.page = value
+            if value not in st.session_state.visited:
+                st.session_state.visited.append(value)
         # Text
         elif session_key == 'text':
             st.session_state.text = value
