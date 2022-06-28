@@ -167,7 +167,9 @@ def display_sidebar(rel_dict,spans=None,spans_pos=None):
             texts = st.selectbox(label='Index: Entity 1 - Entity 2', options=[None]+[f'{span_idx}: {span_el[0]} - {span_el[1]}' for span_idx, span_el in enumerate(spans_list)], key='index_span', on_change=generic.update_session, kwargs={'session_key':'category','value':None})
             if texts:
                 texts_list = texts.replace(':',' -').split(' - ')
-                span_dict = [span for span in st.session_state.relations if span['head']==generic.get_obj_value(spans_pos,texts_list[1]) and span['child']==generic.get_obj_value(spans_pos,texts_list[2])][0]
+                rel_span_pos = [generic.get_obj_value(spans_pos,texts_list[1]),generic.get_obj_value(spans_pos,texts_list[2])]
+                # span_dict = [span for span in st.session_state.relations if span['head']==generic.get_obj_value(spans_pos,texts_list[1]) and span['child']==generic.get_obj_value(spans_pos,texts_list[2])][0]
+                span_dict = [span for span in st.session_state.relations if span['head']==min(rel_span_pos) and span['child']==max(rel_span_pos)][0]
                 # span_dict = [span for span in st.session_state.relations if span['head']==texts_pos[0] and span['child']==texts_pos[1]][0]
                 rel_idx = st.session_state.relations.index(span_dict)
                 category = st.selectbox(label='Category', options=[None]+list(rel_dict.keys()), key='category')

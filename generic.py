@@ -3,6 +3,7 @@ from itertools import combinations
 import spacy
 import streamlit as st
 import json
+import re
 
 
 def init_session(session_key=None): # No updates
@@ -253,10 +254,13 @@ def update_text(iter_obj,text,text_idx,relations):
 
 def get_obj_value(iter_obj,target_value,access='key'):
     if access == 'key':    # access by key
-        target_list = target_value.replace('(','').replace(')','-').split('-')
+        # target_list = target_value.replace('(',' - ').replace(')',' - ').split(' - ')
+        target_list = re.split(r'(\s\()(\d+)(\))',target_value)
+        
         if len(target_list)==1:
             target_list.append(0)
         else:
+            target_list = [target_list[0],target_list[2]]
             target_list[1] = int(target_list[1])-1
 
         return iter_obj.get(target_list[0])[target_list[1]]
