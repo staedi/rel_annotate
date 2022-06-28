@@ -103,8 +103,9 @@ def make_spans(span_list,spans=None,mode='generic'):
             start = min(map(lambda x:x['start'],span_list))
             token_start = min(map(lambda x:x['token_start'],span_list))
             token_end = max(map(lambda x:x['token_start']+1,span_list))
-            end = max(map(lambda x:x['start']+len(x['text']),span_list))
-            text = ' '.join(map(lambda x:x['text'],span_list))
+            end = max(map(lambda x:x['start']+len(x['text']),span_list))            
+            text = ''.join([token['text'] if not token['ws'] else f"{token['text']} " for token in span_list]).strip()
+            # text = ' '.join(map(lambda x:x['text'],span_list))
             type = 'span'
             label = 'ORG'
         return {'text':text,'start':start,'token_start':token_start,'token_end':token_end,'end':end,'type':type,'label':label}
@@ -375,6 +376,7 @@ def process_multisel_span(text,spans_sets,tokens_sets,type,span_multisel=None,it
             iters = iter_idx + 1
             if len(span_multisel)>1:
                 spans_sets.append(make_spans([token for token in tokens_sets if token['token_start']>=span_start and token['token_start']<=span_end]))
+                spans_sets = sorted(spans_sets,key=lambda x:x['start'])
                 tokens_sets = [token for token in tokens_sets if (span_start>0 and token['token_start']<span_start) or (span_end<len(text['tokens']) and token['token_start']>span_end)]
                 # update_session(session_key='spans',value=spans_sets)
                 # make_relations(spans=spans_sets,type=type)

@@ -71,7 +71,7 @@ def process_spans(rel_dict,spans,spans_pos,relations,prev_rel):
 def process_edit(edit_spans,text):
     if edit_spans:
         st.subheader('Modify span entities!')
-        tokens_sets = [{'text':tokens['text'],'start':tokens['start'],'token_start':tokens['id']} for tokens in text['tokens']]        
+        tokens_sets = [{'text':tokens['text'],'start':tokens['start'],'token_start':tokens['id'],'ws':tokens['ws']} for tokens in text['tokens']]        
         spans_sets = []
         iter_idx = 0
 
