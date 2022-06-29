@@ -7,7 +7,7 @@ relations_dict = {"Business": {"Found": ["Posline"], "Buy": ["Over", "Under"], "
 "Cooperation": {"Cooperate": ["Posline"]},
 "Performance": {"Perform": ["Over", "Under"], "Inline": ["Posline", "Negline"]},
 "Recruitment": {"Hire": ["Over", "Posline"], "Quit": ["Over"], "Lose": ["Under"]}, 
-"Legal": {"File": ["Over"], "Sued": ["Under"], "Indicted": ["Under"], "Subpoenaed": ["Under"], "Alleged": ["Under"], "Win": ["Over"], "Lose": ["Under"], "Press": ["Over"]},
+"Legal": {"File": ["Over"], "Sued": ["Under"], "Indicted": ["Under"], "Subpoenaed": ["Under"], "Alleged": ["Under"], "Win": ["Over"], "Lose": ["Under"], "Press": ["Over"], "Ordered": ["Neg"]},
 "News": {"Launch": ["Posline"], "Patent": ["Posline"], "Authorize": ["Pos", "Neg"]},
 "Bankruptcy": {"Bankruptcy": ["Pos", "Neg"]},
 "No-rel": {"No-rel": []}}

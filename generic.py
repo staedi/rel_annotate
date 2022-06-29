@@ -158,10 +158,10 @@ def make_relations(spans,type,relations=None,iter_idx=None):
             for span in combinations(spans,2):
                 relations.append({"head": span[0]["token_start"], "child": span[1]["token_start"], 
                 "head_span": {"start": span[0]["start"], "end": span[0]["end"], "token_start": span[0]["token_start"], "token_end": span[0]["token_end"], "label": span[0]["label"]},
-                "child_span": {"start": span[1]["start"], "end": span[1]["end"], "token_start": span[1]["token_start"], "token_end": span[1]["token_end"], "label": span[0]["label"]},
+                "child_span": {"start": span[1]["start"], "end": span[1]["end"], "token_start": span[1]["token_start"], "token_end": span[1]["token_end"], "label": span[1]["label"]},
                 "label": "No-rel"})            
             # text['relations'] = relations
-            if relations:
+            if type != 'spacy' and relations:
                 update_session(session_key='relations',value=relations)
             # else:
             #     init_session('relations')
@@ -202,7 +202,7 @@ def pre_nlp(lines,nlp=None):
         doc = nlp(line)
 
         spans = make_spans(span_list=doc.ents,spans=spans,mode='spacy')
-        relations = make_relations(spans=spans,type='Reset',relations=relations)
+        relations = make_relations(spans=spans,type='spacy',relations=relations)
 
         token_range_2d = list(map(lambda x:[idx for idx in range(x['token_start'],x['token_end'])],spans))
         token_range = []
