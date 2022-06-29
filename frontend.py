@@ -92,8 +92,10 @@ def process_edit(edit_spans,text):
                 # text, spans_sets, tokens_sets, iter_idx = generic.process_multisel_span(span_multisel=span_multisels,text=text,spans_sets=spans_sets,tokens_sets=tokens_sets,type=edit_spans,iter_idx=iter_idx)
 
             if len(spans_sets)>1:
-                generic.update_session(session_key='spans',value=spans_sets)
-                generic.make_relations(spans=spans_sets,type=edit_spans)
+                update_data = st.button('Update session')
+                if update_data:
+                    generic.update_session(session_key='spans',value=spans_sets)
+                    generic.make_relations(spans=spans_sets,type=edit_spans)
                 text['spans'], text['relations'] = st.session_state.spans, st.session_state.relations
 
 
@@ -134,6 +136,8 @@ def process_edit(edit_spans,text):
                     generic.update_session(session_key='spans',value=spans_sets)
                     generic.make_relations(spans=spans_sets,type=edit_spans)
                     text['spans'], text['relations'] = st.session_state.spans, st.session_state.relations
+
+        return spans_sets
 
     # return st.session_state.spans, st.session_state.relations
 
@@ -219,7 +223,7 @@ def process_iterator(iter_obj,page_num,rel_dict):
             # radio_options.append('Remove')
         # edit_spans = st.sidebar.radio('Modify spans',key='radio_spans',options=radio_options)
         edit_spans = st.sidebar.selectbox('Modify spans',key='radio_spans',options=radio_options)
-        process_edit(edit_spans,text)
+        spans_sets = process_edit(edit_spans,text)
 
         st.subheader('Text to Annotate!')
         text['spans'], text['relations'] = st.session_state.spans, st.session_state.relations
@@ -236,7 +240,11 @@ def process_iterator(iter_obj,page_num,rel_dict):
             else:
                 spans_pos[span['text']] = [span['token_start']]
 
-        doc, labels = generic.process_displayc(text)
+        if spans_sets:
+            doc, labels = generic.process_displayc({'text':text['text'],'spans':spans_sets})
+        else:
+            doc, labels = generic.process_displayc(text)
+            
         if labels:
             spacy_streamlit.visualize_ner(doc,show_table=False,manual=True,labels=labels,title='')
         else:

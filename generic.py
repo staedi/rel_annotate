@@ -84,7 +84,6 @@ def update_session(session_key,value,key=None):
             st.session_state.tokens_sets = value
 
 
-
 def make_spans(span_list,spans=None,mode='generic'):
     if not isinstance(spans,list):
         if mode == 'spacy':
