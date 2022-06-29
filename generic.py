@@ -136,7 +136,7 @@ def make_relations(spans,type,relations=None,iter_idx=None):
             # else:
             #     init_session('relations')
 
-        elif type == 'Individual':
+        elif type == 'Modify':
             if isinstance(iter_idx,list):
                 for iter_dict in iter_idx:
                     relations = {}
@@ -347,8 +347,13 @@ def process_btn(json_lines,pages,page_num=0):
     return prev_page, next_page, page_num
 
 
-def process_sel_span(span_sel,text,tokens_sets):
+def process_sel_span(span_sel,text,tokens_sets,type='Modify'):
     spans_sets = text['spans']
+    span_idx = int(span_sel[:span_sel.find(':')])
+
+    if type == 'Remove':
+        spans_sets = [span for idx, span in enumerate(spans_sets) if idx != span_idx]
+
     token_ends_dict = {'token_end':text['tokens'][-1]['id']+len(text['tokens'][-1]['text']),'end':text['tokens'][-1]['end']}
     spans_start, spans_end = get_tokens_range(span_sel,text['spans'],token_ends_dict)
     tokens_sets = [tokens for tokens in tokens_sets if tokens['token_start']>=spans_start and tokens['token_start']<=spans_end]
@@ -360,7 +365,7 @@ def process_sel_span(span_sel,text,tokens_sets):
 def process_multisel_span(text,spans_sets,tokens_sets,type,span_multisel=None,iter_idx=None):
     # span_multisel = [st.session_state.span_start, st.session_state.span_end]
 
-    if type == 'Individual':
+    if type == 'Modify':
         # span_multisel = st.session_state.multi_span
         span_multisel = [st.session_state.span_start, st.session_state.span_end]
     # elif not span_multisel:
@@ -376,12 +381,13 @@ def process_multisel_span(text,spans_sets,tokens_sets,type,span_multisel=None,it
             iters = iter_idx + 1
             if len(span_multisel)>1:
                 spans_sets.append(make_spans([token for token in tokens_sets if token['token_start']>=span_start and token['token_start']<=span_end]))
-                spans_sets = sorted(spans_sets,key=lambda x:x['start'])
+                spans_sets = sorted(spans_sets,key=lambda x:(x['token_start'],-x['token_end']))
+                # spans_sets = list({k['token_start']:k for k in spans_sets}.values())
                 tokens_sets = [token for token in tokens_sets if (span_start>0 and token['token_start']<span_start) or (span_end<len(text['tokens']) and token['token_start']>span_end)]
                 # update_session(session_key='spans',value=spans_sets)
                 # make_relations(spans=spans_sets,type=type)
 
-        elif type == 'Individual':
+        elif type == 'Modify':
             prev_span = {key:val for key,val in spans_sets[iter_idx].items() if key in ('start','end','token_start','token_end','label')}
             iters = [{idx:'head_span'} if x['head_span']==prev_span else {idx:'child_span'} for idx,x in enumerate(text['relations']) if x['head_span']==prev_span or x['child_span']==prev_span]
             # st.write(make_spans([token for token in tokens_sets if token['token_start']>=span_start and token['token_start']<=span_end]))

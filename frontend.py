@@ -97,13 +97,12 @@ def process_edit(edit_spans,text):
                 text['spans'], text['relations'] = st.session_state.spans, st.session_state.relations
 
 
-
-        elif edit_spans == 'Individual':    # Only changing selected span
+        elif edit_spans == 'Modify':    # Only changing selected span
             span_sel = st.selectbox(f'Span to modify',key='select_span',options=[None]+list(map(lambda x:f"{text['spans'].index(x)}: {x['text']}",text['spans'])))
 
             if span_sel:
                 iter_idx = int(span_sel[:span_sel.find(':')])
-                spans_sets, tokens_sets = generic.process_sel_span(span_sel=span_sel,text=text,tokens_sets=tokens_sets)                
+                spans_sets, tokens_sets = generic.process_sel_span(span_sel=span_sel,text=text,tokens_sets=tokens_sets,type=edit_spans)                
                 prev_span_range = [spans_sets[iter_idx]['token_start'],spans_sets[iter_idx]['token_end']-1]
 
                 # tokens_sets = generic.process_sel_span(span_sel=span_sel,text=text,tokens_sets=tokens_sets)
@@ -122,6 +121,19 @@ def process_edit(edit_spans,text):
                         generic.update_session(session_key='spans',key=iter_idx,value=spans_sets[iter_idx])
                         generic.make_relations(spans=spans_sets[iter_idx],iter_idx=iters,type=edit_spans)
                         text['spans'], text['relations'] = st.session_state.spans, st.session_state.relations
+
+
+        elif edit_spans == 'Remove':    # Remove selected span
+            span_sel = st.selectbox(f'Span to remove',key='remove_span',options=[None]+list(map(lambda x:f"{text['spans'].index(x)}: {x['text']}",text['spans'])))
+
+            if span_sel:
+                iter_idx = int(span_sel[:span_sel.find(':')])
+                spans_sets, tokens_sets = generic.process_sel_span(span_sel=span_sel,text=text,tokens_sets=tokens_sets,type=edit_spans)
+
+                if len(text['spans']) != len(spans_sets):
+                    generic.update_session(session_key='spans',value=spans_sets)
+                    generic.make_relations(spans=spans_sets,type=edit_spans)
+                    text['spans'], text['relations'] = st.session_state.spans, st.session_state.relations
 
     # return st.session_state.spans, st.session_state.relations
 
@@ -200,8 +212,13 @@ def process_iterator(iter_obj,page_num,rel_dict):
         ## NEW - Modify spans
         radio_options = [None,'Reset']
         if len(text['spans'])>1:
-            radio_options.append('Individual')
-        edit_spans = st.sidebar.radio('Modify spans',key='radio_spans',options=radio_options)
+            radio_options = [None,'Modify','Reset']
+            # radio_options.append('Modify')
+        if len(text['spans'])>2:
+            radio_options = [None,'Remove','Modify','Reset']
+            # radio_options.append('Remove')
+        # edit_spans = st.sidebar.radio('Modify spans',key='radio_spans',options=radio_options)
+        edit_spans = st.sidebar.selectbox('Modify spans',key='radio_spans',options=radio_options)
         process_edit(edit_spans,text)
 
         st.subheader('Text to Annotate!')
