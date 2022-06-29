@@ -123,20 +123,20 @@ def make_relations(spans,type,relations=None,iter_idx=None):
         relations = []
 
     if spans:
-        if type == 'Reset':
-            relations = []
-            for span in combinations(spans,2):
-                relations.append({"head": span[0]["token_start"], "child": span[1]["token_start"], 
-                "head_span": {"start": span[0]["start"], "end": span[0]["end"], "token_start": span[0]["token_start"], "token_end": span[0]["token_end"], "label": span[0]["label"]},
-                "child_span": {"start": span[1]["start"], "end": span[1]["end"], "token_start": span[1]["token_start"], "token_end": span[1]["token_end"], "label": span[0]["label"]},
-                "label": "No-rel"})            
-            # text['relations'] = relations
-            if relations:
-                update_session(session_key='relations',value=relations)
-            # else:
-            #     init_session('relations')
+        # if type == 'Reset':
+        #     relations = []
+        #     for span in combinations(spans,2):
+        #         relations.append({"head": span[0]["token_start"], "child": span[1]["token_start"], 
+        #         "head_span": {"start": span[0]["start"], "end": span[0]["end"], "token_start": span[0]["token_start"], "token_end": span[0]["token_end"], "label": span[0]["label"]},
+        #         "child_span": {"start": span[1]["start"], "end": span[1]["end"], "token_start": span[1]["token_start"], "token_end": span[1]["token_end"], "label": span[0]["label"]},
+        #         "label": "No-rel"})            
+        #     # text['relations'] = relations
+        #     if relations:
+        #         update_session(session_key='relations',value=relations)
+        #     # else:
+        #     #     init_session('relations')
 
-        elif type == 'Modify':
+        if type == 'Modify':
             if isinstance(iter_idx,list):
                 for iter_dict in iter_idx:
                     relations = {}
@@ -152,6 +152,20 @@ def make_relations(spans,type,relations=None,iter_idx=None):
 
                         if relations:
                             update_session(session_key='relations',key=int(idx),value=relations)
+
+        else:
+            relations = []
+            for span in combinations(spans,2):
+                relations.append({"head": span[0]["token_start"], "child": span[1]["token_start"], 
+                "head_span": {"start": span[0]["start"], "end": span[0]["end"], "token_start": span[0]["token_start"], "token_end": span[0]["token_end"], "label": span[0]["label"]},
+                "child_span": {"start": span[1]["start"], "end": span[1]["end"], "token_start": span[1]["token_start"], "token_end": span[1]["token_end"], "label": span[0]["label"]},
+                "label": "No-rel"})            
+            # text['relations'] = relations
+            if relations:
+                update_session(session_key='relations',value=relations)
+            # else:
+            #     init_session('relations')
+
 
     return relations
 
