@@ -254,7 +254,7 @@ def process_iterator(iter_obj,page_num,rel_dict):
 
         sel_rel = st.sidebar.checkbox('Show Relations',key='check_rel')
         # if sel_rel and len(spans_pos)>1:
-        if sel_rel and len(spans_pos)>0 and max(map(lambda x:len(x),spans_pos.values()))>1:
+        if sel_rel and len(spans_pos)>0 and max(max(map(lambda x:len(x),spans_pos.values())),len(spans_pos))>1:
             show_table(spans_pos)
             
         update_status = process_spans(rel_dict=rel_dict,spans=text['spans'],spans_pos=spans_pos,relations=st.session_state.relations,prev_rel=text['relations'])
