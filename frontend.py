@@ -92,7 +92,7 @@ def process_edit(edit_spans,text):
                 # text, spans_sets, tokens_sets, iter_idx = generic.process_multisel_span(span_multisel=span_multisels,text=text,spans_sets=spans_sets,tokens_sets=tokens_sets,type=edit_spans,iter_idx=iter_idx)
 
             if len(spans_sets)>1:
-                update_data = st.button('Update session')
+                update_data = st.sidebar.button('Update session')
                 if update_data:
                     generic.update_session(session_key='spans',value=spans_sets)
                     generic.make_relations(spans=spans_sets,type=edit_spans)
@@ -253,7 +253,8 @@ def process_iterator(iter_obj,page_num,rel_dict):
         show_layout(type='spans',layout=[.2,.3])
 
         sel_rel = st.sidebar.checkbox('Show Relations',key='check_rel')
-        if sel_rel and len(spans_pos)>1:
+        # if sel_rel and len(spans_pos)>1:
+        if sel_rel and max(map(lambda x:len(x),spans_pos.values())):
             show_table(spans_pos)
             
         update_status = process_spans(rel_dict=rel_dict,spans=text['spans'],spans_pos=spans_pos,relations=st.session_state.relations,prev_rel=text['relations'])
