@@ -2,12 +2,12 @@ import streamlit as st
 import generic
 import frontend
 
-relations_dict = {"Business": {"Found": ["Posline"], "Buy": ["Over", "Under"], "Sell": ["Over", "Posline", "Pos"], "IPO": ["Posline"], "Privatize": ["Over", "Under", "Posline"], "Invest": ["Posline"], "Cancel": ["Neg"], "Bid": ["Over", "Under"]},
+relations_dict = {"Business": {"Found": ["Posline"], "Buy": ["Over", "Under", "Posline"], "Sell": ["Over", "Posline", "Pos"], "IPO": ["Posline"], "Privatize": ["Over", "Under", "Posline"], "Invest": ["Posline"], "Cancel": ["Neg"], "Bid": ["Over", "Under"]},
 "Family": {"Family": ["Posline"]},
 "Cooperation": {"Cooperate": ["Posline"]},
 "Performance": {"Perform": ["Over", "Under"], "Inline": ["Posline", "Negline"]},
-"Recruitment": {"Hire": ["Over", "Posline"], "Quit": ["Over"], "Lose": ["Under"]}, 
-"Legal": {"File": ["Over"], "Sued": ["Neg", "Under"], "Indicted": ["Neg", "Under"], "Subpoenaed": ["Neg", "Under"], "Alleged": ["Neg", "Under"], "Win": ["Over"], "Lost": ["Under"], "Anger": ["Neg"], "Press": ["Over"], "Ordered": ["Neg"]},
+"Recruitment": {"Hire": ["Over", "Posline"], "Fire": ["Over"], "Quit": ["Over"], "Lose": ["Under"]}, 
+"Legal": {"File": ["Over"], "Regulate": ["Over"], "Sued": ["Neg", "Under"], "Indicted": ["Neg", "Under"], "Subpoenaed": ["Neg", "Under"], "Alleged": ["Neg", "Under", "Negline"], "Win": ["Pos", "Over"], "Lost": ["Neg", "Under"], "Anger": ["Neg"], "Press": ["Over"], "Ordered": ["Neg"]},
 "News": {"Launch": ["Posline"], "Patent": ["Posline"], "Authorize": ["Pos", "Neg"]},
 "Bankruptcy": {"Bankruptcy": ["Pos", "Neg"]},
 "No-rel": {"No-rel": []}}

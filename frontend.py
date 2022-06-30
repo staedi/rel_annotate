@@ -26,8 +26,10 @@ def save_data(update_status,iter_obj,path=None):
     if update_status or path:
         if not path:
             filename = 'sample2.jsonl'
-        else:
+        elif path.name.find('json'):
             filename = path.name
+        else:
+            filename = f"{path.name[:path.name.rfind('.')]}.jsonl"
         # else:
         #     filename = f"{path.name[:path.name.rfind('.')]}_out.jsonl"
 
@@ -69,10 +71,13 @@ def process_spans(rel_dict,spans,spans_pos,relations,prev_rel):
 
 
 def process_edit(edit_spans,text):
+    rerun = False
+    spans_sets = []
+
     if edit_spans:
         st.subheader('Modify span entities!')
         tokens_sets = [{'text':tokens['text'],'start':tokens['start'],'token_start':tokens['id'],'ws':tokens['ws']} for tokens in text['tokens']]        
-        spans_sets = []
+        # spans_sets = []
         iter_idx = 0
 
         st.session_state.tokens_sets, st.session_state.span_iter_idx = tokens_sets, iter_idx
@@ -136,8 +141,9 @@ def process_edit(edit_spans,text):
                     generic.update_session(session_key='spans',value=spans_sets)
                     generic.make_relations(spans=spans_sets,type=edit_spans)
                     text['spans'], text['relations'] = st.session_state.spans, st.session_state.relations
+                    rerun = True
 
-        return spans_sets
+    return spans_sets, rerun
 
     # return st.session_state.spans, st.session_state.relations
 
@@ -223,7 +229,10 @@ def process_iterator(iter_obj,page_num,rel_dict):
             # radio_options.append('Remove')
         # edit_spans = st.sidebar.radio('Modify spans',key='radio_spans',options=radio_options)
         edit_spans = st.sidebar.selectbox('Modify spans',key='radio_spans',options=radio_options)
-        spans_sets = process_edit(edit_spans,text)
+        spans_sets, rerun = process_edit(edit_spans,text)
+
+        if rerun:
+            st.experimental_rerun()
 
         st.subheader('Text to Annotate!')
         text['spans'], text['relations'] = st.session_state.spans, st.session_state.relations
