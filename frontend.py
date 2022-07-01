@@ -17,7 +17,7 @@ def show_layout(type='page',data=None,layout=[.1,.6]):
             # if type == 'page':
             #     returns.append(st.button(data[col_idx],key=data[col_idx].lower().replace(' ','_')))
             if data:
-                returns.append(st.button(data[col_idx],key=data[col_idx].lower().replace(' ','_')))
+                returns.append(st.button(data[col_idx],key=data[col_idx].lower().replace(' ','_')))                
 
     return returns
 
