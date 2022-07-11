@@ -5,7 +5,7 @@ import frontend
 relations_dict = {"Business": {"Found": ["Posline"], "Buy": ["Over", "Under", "Posline", "Pos"], "Sell": ["Over", "Under", "Posline", "Negline", "Pos", "Neg"], "Merge": ["Posline", "Pos"], "Operate": ["Posline", "Negline", "Pos", "Neg"], "IPO": ["Posline"], "Privatize": ["Over", "Under", "Posline"], "Invest": ["Posline"], "Cancel": ["Neg", "Over"], "Bid": ["Over", "Under", "Pos"]},
 "Family": {"Family": ["Posline"]},
 "Cooperation": {"Cooperate": ["Posline"]},
-"Performance": {"Perform": ["Over", "Under", "Pos", "Neg"], "Inline": ["Posline", "Negline"], "Rate": ["Over", "Under", "Posline", "Negline", "Pos", "Neg"]},
+"Performance": {"Perform": ["Over", "Under", "Pos", "Neg"], "Inline": ["Posline", "Negline"], "Rate": ["Over", "Posline", "Negline", "Pos", "Neg"]},
 "Recruitment": {"Hire": ["Over", "Posline"], "Fire": ["Over"], "Quit": ["Over"], "Lose": ["Under"]}, 
 "Legal": {"File": ["Over"], "Regulate": ["Over"], "Sued": ["Neg", "Under"], "Indicted": ["Neg", "Under"], "Subpoenaed": ["Neg", "Under"], "Alleged": ["Neg", "Under", "Negline"], "Win": ["Pos", "Over"], "Lost": ["Neg", "Under"], "Verdict": ["Posline", "Over"], "Anger": ["Neg", "Over"], "Press": ["Over"], "Settle": ["Posline", "Pos"], "Ordered": ["Negline", "Neg"]},
 "News": {"Launch": ["Posline"], "Patent": ["Posline"], "Authorize": ["Pos", "Neg"]},

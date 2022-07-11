@@ -142,10 +142,10 @@ def make_relations(spans,type,relations=None,iter_idx=None):
                     for idx, key in iter_dict.items():
                         relations = st.session_state.relations[int(idx)]
                         if key == 'head_span':
-                            relations['head'] = spans['token_start']
+                            relations['head'] = spans['token_end'] #spans['token_start']
                             relations['head_span'] = {key:val for key,val in spans.items() if key in ('start','end','token_start','token_end','label')}
                         elif key == 'child_span':
-                            relations['child'] = spans['token_start']
+                            relations['child'] = spans['token_end'] #spans['token_start']
                             relations['child_span'] = {key:val for key,val in spans.items() if key in ('start','end','token_start','token_end','label')}
                         relations['label'] = 'No-rel'
 
@@ -155,7 +155,7 @@ def make_relations(spans,type,relations=None,iter_idx=None):
         else:
             relations = []
             for span in combinations(spans,2):
-                relations.append({"head": span[0]["token_start"], "child": span[1]["token_start"], 
+                relations.append({"head": span[0]["token_end"], "child": span[1]["token_end"], #span[0]["token_start"], "child": span[1]["token_start"], 
                 "head_span": {"start": span[0]["start"], "end": span[0]["end"], "token_start": span[0]["token_start"], "token_end": span[0]["token_end"], "label": span[0]["label"]},
                 "child_span": {"start": span[1]["start"], "end": span[1]["end"], "token_start": span[1]["token_start"], "token_end": span[1]["token_end"], "label": span[1]["label"]},
                 "label": "No-rel"})            
