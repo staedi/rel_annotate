@@ -2,7 +2,7 @@ import streamlit as st
 import generic
 import frontend
 
-relations_dict = {"Business": {"Found": ["Posline"], "Buy": ["Under", "Posline", "Pos"], "Sell": ["Over", "Under", "Posline", "Negline", "Pos", "Neg"], "Merge": ["Posline", "Pos"], "Operate": ["Posline", "Negline", "Pos", "Neg"], "IPO": ["Posline"], "Privatize": ["Over", "Under", "Posline"], "Invest": ["Posline"], "Cancel": ["Neg", "Over"], "Bid": ["Over", "Under", "Pos"]},
+relations_dict = {"Business": {"Found": ["Posline"], "Buy": ["Under", "Posline", "Pos"], "Sell": ["Over", "Posline", "Negline", "Pos", "Neg"], "Merge": ["Posline"], "Operate": ["Posline", "Negline", "Pos", "Neg"], "IPO": ["Posline"], "Privatize": ["Over", "Under", "Posline"], "Invest": ["Posline"], "Cancel": ["Neg", "Over"], "Bid": ["Over", "Under", "Pos"]},
 "Family": {"Family": ["Posline"]},
 "Cooperation": {"Cooperate": ["Posline"]},
 "Performance": {"Perform": ["Over", "Under", "Pos", "Neg"], "Inline": ["Posline", "Negline"], "Rate": ["Over", "Posline", "Negline", "Pos", "Neg"]},
