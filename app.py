@@ -7,7 +7,7 @@ relations_dict = {"Business": {"Found": ["Posline"], "Buy": ["Over", "Under", "P
 "Cooperation": {"Cooperate": ["Posline"]},
 "Performance": {"Perform": ["Over", "Under", "Pos", "Neg"], "Inline": ["Posline", "Negline"], "Rate": ["Over", "Posline", "Negline", "Pos", "Neg"]},
 "Recruitment": {"Hire": ["Over", "Posline"], "Fire": ["Over"], "Quit": ["Over"], "Lose": ["Under"]}, 
-"Legal": {"File": ["Over"], "Regulate": ["Over"], "Sued": ["Neg", "Under"], "Indicted": ["Neg", "Under"], "Subpoenaed": ["Neg", "Under"], "Alleged": ["Neg", "Under", "Negline"], "Win": ["Pos", "Over"], "Lost": ["Neg", "Under"], "Verdict": ["Posline", "Over"], "Anger": ["Neg", "Over"], "Press": ["Over"], "Settle": ["Posline", "Pos"], "Ordered": ["Negline", "Neg"]},
+"Legal": {"File": ["Over"], "Regulate": ["Over"], "Sued": ["Neg", "Under"], "Indicted": ["Neg", "Under"], "Subpoenaed": ["Neg", "Under"], "Alleged": ["Neg", "Under", "Negline"], "Win": ["Pos", "Over"], "Lose": ["Neg", "Under"], "Verdict": ["Posline", "Over"], "Anger": ["Neg", "Over"], "Press": ["Over"], "Settle": ["Posline", "Pos"], "Ordered": ["Negline", "Neg"]},
 "News": {"Launch": ["Posline"], "Patent": ["Posline"], "Authorize": ["Pos", "Neg"]},
 "Bankruptcy": {"Bankruptcy": ["Pos", "Neg"]},
 "No-rel": {"No-rel": []}}

@@ -90,7 +90,8 @@ def make_spans(span_list,spans=None,mode='generic'):
             if span_list.label_ not in ('DATE','TIME','PERCENT','MONEY','QUANTITY','ORDINAL','CARDINAL'):
                 start = span_list.start_char
                 token_start = span_list.start
-                token_end = span_list.end
+                # token_end = span_list.end
+                token_end = span_list.end-1
                 end = span_list.end_char
                 text = span_list.text
                 type = 'span'
@@ -101,7 +102,8 @@ def make_spans(span_list,spans=None,mode='generic'):
         else:   # custom spans ('generic')
             start = min(map(lambda x:x['start'],span_list))
             token_start = min(map(lambda x:x['token_start'],span_list))
-            token_end = max(map(lambda x:x['token_start']+1,span_list))
+            # token_end = max(map(lambda x:x['token_start']+1,span_list))
+            token_end = max(map(lambda x:x['token_start'],span_list))
             end = max(map(lambda x:x['start']+len(x['text']),span_list))            
             text = ''.join([token['text'] if not token['ws'] else f"{token['text']} " for token in span_list]).strip()
             # text = ' '.join(map(lambda x:x['text'],span_list))
